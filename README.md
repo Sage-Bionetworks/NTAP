@@ -10,7 +10,7 @@ Each project has its own sub-directory containing access to the individual
 scripts designed to help retrieve and analyze the data. Here are the projects
 that have data available in Synapse:
 
-- PNF Cell Lines: This project studies plexiform neurofibromatomas in culture. Analysis for this project can be found at [here](./pnfCellLines)
-- [placeholder]: other data that will be coming through Sage/Synapse
+* [PNF Cell Lines](./pnfCellLines): This project studies plexiform neurofibromatomas in culture. Analysis for this project can be found includes basic segmentation  and clustering.
+* [placeholder]: other data that will be coming through Sage/Synapse
 
 Click through to the individual sub-directory to see more about the project.
