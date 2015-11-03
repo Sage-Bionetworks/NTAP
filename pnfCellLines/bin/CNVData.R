@@ -55,7 +55,7 @@ tier0_rawData<-function(annot=NA){
     })
 
                                         #update sample names
-    names(sample.data) <- sample.names
+    names(sample.data) <- snpfiles$entity.sampleID
 
     return(sample.data)
 }
