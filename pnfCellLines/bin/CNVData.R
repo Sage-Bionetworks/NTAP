@@ -8,7 +8,7 @@ library(DNAcopy)
 library(CNTools)
 
 library(synapseClient)
-
+synapseLogin()
 
 ##download all meta data from original files
 if(!exists('snpfiles'))
