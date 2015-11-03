@@ -1,5 +1,5 @@
 =================================
-Plexiform Neurofibromatosis Cell Lines
+Plexiform Neurofibromatosis (PNF) Cell Lines
 =================================
 This repository contains NTAP-funded analyses required to process the PNF cell lines.
 
