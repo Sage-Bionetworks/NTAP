@@ -6,16 +6,14 @@ library(pheatmap)
 #first log into synapse
 synapseLogin()
 
-##download all meta data from original files
-if(!exists('snpfiles'))
-    snpfiles=synapseQuery('SELECT id,sampleName,sampleGenotype,sampleID,sampleOrigin FROM entity where parentId=="syn4988794"')
 
+source("../../bin/CNVData.R")
 
 ##read in segmentation data
 if(!exists("segdata"))
-    segdata <- read.table(synGet('syn5015035')@filePath,header=T)
+    segdata <- tier1_segmentedData(FALSE)
 if(!exists("segdata2"))
-    segdata2 <- read.table(synGet('syn5015036')@filePath,header=T)
+    segdata2 <- tier2_segmentedData(TRUE)
 
 
 
@@ -23,17 +21,9 @@ if(!exists("segdata2"))
 if(!exists("geneInfo"))
     geneInfo<-read.table('../../data/hg19_geneInfo.txt')
 
-#now get annotations
-origin<-snpfiles$'entity.sampleOrigin'
-names(origin)<-snpfiles$entity.sampleID
-
-clnames<-paste(snpfiles$'entity.sampleName',snpfiles$'entity.sampleGenotype')
-names(clnames)<-snpfiles$entity.sampleID
-
-genotype<-snpfiles$'entity.sampleGenotype'
-names(genotype)<-clnames
-
 plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=100,prefix=''){
+
+    print(paste("Preparing to analyze segmented CNV data by",metric,'focusing on top',topGenes,byval))
     ##first get data matrix of regions by gene
     cnseg <- CNSeg(segdat)
     if(byval=='gene')
@@ -119,9 +109,11 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
 
 
     fname=paste('most_variable',topGenes,byval,'by',metric,'logRRatios_heatmap.png',sep='_')
-    pheatmap(tm,annotation_row=data.frame(NF1Corr=nfcor),
-             annotation_col=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
-
+    if(byval=='gene')
+        pheatmap(tm,annotation_row=data.frame(NF1Corr=nfcor),
+                 annotation_col=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
+    else
+        pheatmap(tm,annotation_col=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
     ## Analysis 2
     ##let's do supervised clustering, look for cnv values that correlate with genotype
     gcors=apply(M,1,function(x) cor(x,as.numeric(as.factor(genotype[colnames(tm)]))))
@@ -153,8 +145,12 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
     dev.off()
     fname=paste('most_gt_correlated',topGenes,byval,'by',metric,'logRRatios_heatmap.png',sep='_')
 
-    pheatmap(tm,annotation_row=data.frame(NF1Corr=nfcor),annotation_col=data.frame(Genotype=genotype),
-             cellwidth=10,cellheight=10,file=fname)
+    if(byval=='gene')
+        pheatmap(tm,annotation_row=data.frame(NF1Corr=nfcor),annotation_col=data.frame(Genotype=genotype),
+                 cellwidth=10,cellheight=10,file=fname)
+    else
+        pheatmap(tm,annotation_col=data.frame(Genotype=genotype),
+                 cellwidth=10,cellheight=10,file=fname)
 }
 
 #here are the primary tasks we want to do

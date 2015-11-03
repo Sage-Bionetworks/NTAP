@@ -10,9 +10,26 @@ library(CNTools)
 library(synapseClient)
 
 
+##download all meta data from original files
+if(!exists('snpfiles'))
+    snpfiles<-synapseQuery('SELECT id,sampleName,sampleGenotype,sampleID,sampleOrigin FROM entity where parentId=="syn4988794"')
+
+
+#now get annotations
+origin<-snpfiles$'entity.sampleOrigin'
+names(origin)<-snpfiles$entity.sampleID
+
+clnames<-paste(snpfiles$'entity.sampleName',snpfiles$'entity.sampleGenotype')
+names(clnames)<-snpfiles$entity.sampleID
+
+genotype<-snpfiles$'entity.sampleGenotype'
+names(genotype)<-clnames
+
+
 ##here is a basic function to get annotation data
 snp_annotation_data<-function(){
     ##need to downlod and read in large annotation file as well
+    print("Retrieving OMNI Array SNP annotation data from Synapse...")
     anndata<-synGet('syn5005069')
     annot <- as.data.frame(fread(anndata@filePath,sep=",",header=T))
     return(annot)
@@ -24,17 +41,14 @@ tier0_rawData<-function(annot=NA){
                                         #first login to synapse
     synapseLogin()
 
-    snpfiles=synapseQuery('SELECT id,name FROM entity where parentId=="syn4988794"')
-
-    sample.names <- gsub(".*(W\\d+).*","\\1", snpfiles[,1])
-    sample.names[grep("CIDR",sample.names)]<-'CIDR'
-
     if(is.na(annot))
         annot=snp_annotation_data()
 
+    print('Now retreiving original CNV data from NTAP CLP OMNI arrays...')
                                         #collect sample files and process them into data frame
-    sample.data<-lapply(snpfiles[,2],function(synid){
+    sample.data<-lapply(snpfiles$entity.id,function(synid){
         fname=synGet(synid)
+        print(paste("Getting sample",snpfiles$entity.sampleID[match(synid,snpfiles$entity.id)]))
         data <- as.data.frame(fread(fname@filePath,sep=",",header=T))
         ad<-data[match(annot$Name,data$'SNP Name'),]
         return(ad)
@@ -49,6 +63,7 @@ tier0_rawData<-function(annot=NA){
 
 #this function collects the segmented data, which has been processed and analyzed and uploaded to synapse
 tier1_segmentedData<-function(filterBySD=TRUE){
+    print(paste('Retriving segmented CNV data from Synapse...'))
     if(filterBySD){ #get the segments that differ by at least 2 SDs with neighboring regions
         segdata <- read.table(synGet('syn5015036')@filePath,header=T)
     }else{
@@ -59,36 +74,8 @@ tier1_segmentedData<-function(filterBySD=TRUE){
 
 
 
-##here is the meta data for the file (to be replaced with synapse annotations)
-clnames <- c("whole blood (++)",
-             "ipNF95.6 (--)",
-             "ipNF95.11bC (--)",
-             "ipNF05.5 (single clone) (--)",
-             "ipNF05.5 (mixed clone) (--)",
-             "ipn02.3 (++)",
-             "ipnNF95.11c (+-)",
-             "pNF05.5 (--)",
-             "pNF95.11bC (--)",
-             "pNF95.6 (--)",
-             "pn02.3 (++)",
-             "pnNF95.11c (+-)")
 
-origin <- c("whole blood (++)",
-             "pNF95.6 (--)",
-             "pNF95.11bC (--)",
-             "pNF05.5 (--)",
-             "pNF05.5 (--)",
-             "pn02.3 (++)",
-             "pnNF95.11c (+-)",
-             "pNF05.5 (--)",
-             "pNF95.11bC (--)",
-             "pNF95.6 (--)",
-             "pn02.3 (++)",
-             "pnNF95.11c (+-)")
-
-
-
-dataSummaryPlots(annot=NA){
+dataSummaryPlots<-function(annot=NA){
 
     if(is.na(annot))
         annot<-snp_annotation_data
