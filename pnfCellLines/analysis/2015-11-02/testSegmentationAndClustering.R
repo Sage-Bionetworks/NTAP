@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #test segmentation analysis
-source("../../bin/segmentCNVData.R")
+source("../../bin/segmentCNVData.R") #(better to run on EC2)
 
 ##also let's add the annotation here
 
