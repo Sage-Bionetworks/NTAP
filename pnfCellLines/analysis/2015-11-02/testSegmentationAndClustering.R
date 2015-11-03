@@ -12,7 +12,7 @@ main()
 parentid='syn5014748'
 
 #here are the files used for the analysis performed
-filelist=list(list(name='clusterCNVBySample.R',url='https://github.com/sgosline/NTAP/blob/master/pnfCellLines/bin/clusterCNVBySample.R',wasExecuted=TRUE),list(entity='syn5015036',wasExecuted=FALSE),list(name='CNVData.R',url='https://github.com/sgosline/NTAP/blob/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE))
+filelist=list(list(name='clusterCNVBySample.R',url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/clusterCNVBySample.R',wasExecuted=TRUE),list(entity='syn5015036',wasExecuted=FALSE),list(name='CNVData.R',url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE))
 
 #image 1 - unsupervised clustering
 sf=File('all_gene_by_median_logRRatios_dendro.png',parentId=parentid)

@@ -127,7 +127,7 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
 
                                         #now let's take top 100 genes and plot/cluster again
     tm=M[order(gcors,decreasing=T)[1:100],]
-    nfcor=apply(tm,1,function(x) cor(x,M['NF1',]))
+
 
     fname=paste('most_gt_correlated',topGenes,byval,'by',metric,'logRRatios.pdf',sep='_')
     pdf(fname)

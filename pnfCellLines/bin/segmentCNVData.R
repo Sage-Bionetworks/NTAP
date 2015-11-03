@@ -148,7 +148,7 @@ segment.smoothed.cna.sundo <- segment(smoothed.cna, undo.splits="sdundo",undo.SD
 chr17.smoothed.sundo=subset(segment.smoothed.cna.sundo,chromlist=c("17"))
 
 
-
+##write the files
 write.table(segment.smoothed.cna$output, file="ntap_clp_cbs_noundo.seg",
             sep="\t",quote=FALSE,row.names=F)
 write.table(segment.smoothed.cna.sundo$output, file="ntap_clp_cbs_undosd2.seg",
@@ -156,7 +156,11 @@ write.table(segment.smoothed.cna.sundo$output, file="ntap_clp_cbs_undosd2.seg",
 
 ##put these files in synapse analysis directory
 sf=File('ntap_clp_cbs_noundo.seg',parentId='syn5014748')
-synStore(sf)
+synStore(sf,used=list(list(name='segmentCNVData.R',url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/segmentCNVData.R',wasExecuted=TRUE),
+                list(entity='syn5005069',wasExecuted=FALSE),
+              list(name='CNVData.R',url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE)))
+
+
 
 sf=File('ntap_clp_cbs_undosd2.seg',parentId='syn5014748')
 synStore(sf)
