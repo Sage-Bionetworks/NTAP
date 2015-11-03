@@ -11,26 +11,14 @@ library(CNTools)
 library(synapseClient)
 
 #first login to synapse
-synapseLogin()
+source("../../bin/CNVData.R")
+                                        #read in the annotation file. this can be big.
+annot<-snp_annotation_data()
 
-if(!exists('snpfiles'))
-    snpfiles=synapseQuery('SELECT id,sampleName,sampleGenotype,sampleID,sampleOrigin FROM entity where parentId=="syn4988794"')
-
-sample.names<-snpfiles$entity.sampleID
-#now get annotations
-origin<-snpfiles$'entity.sampleOrigin'
-names(origin)<-sample.names
-
-clnames<-snpfiles$'entity.sampleName'
-names(clnames)<-sample.names
-
-
+#now get raw files
+sample.data<-tier0_rawData(annot)
 
 ####STEP 1: analyze probes from OMNI SNP data
-
-#read in the annotation file. this can be big.
-anndata<-synGet('syn5005069')
-annot <- as.data.frame(fread(anndata@filePath,sep=",",header=T))
 
 ##get regions that are within our general region: chr17:29000019 to 30427403
 chr17.snps=annot[grep('chr17',annot$chrpos),]
@@ -39,17 +27,6 @@ all.chr<-annot$chr
 
 pos<-all.pos[which(all.chr=='17')]
 chr17.snps=chr17.snps[intersect(which(pos>29000019),which(pos<30427403)),]
-
-                                        #collect sample files and process them into data frame
-sample.data<-lapply(snpfiles[,2],function(synid){
-    fname=synGet(synid)
-    data <- as.data.frame(fread(fname@filePath,sep=",",header=T))
-    ad<-data[match(annot$Name,data$'SNP Name'),]
-    return(ad)
-})
-
-#update sample names
-names(sample.data) <- sample.names
 
 
 is.autosome <- as.character(all.chr) %in% as.character(1:22)
