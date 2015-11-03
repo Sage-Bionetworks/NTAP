@@ -43,7 +43,7 @@ library(ggplot2)
 ##create ggplot-associated data.frame
 list.of.lists<-c(LogRRatio=c(),BAlleleFreq=c(),Sample=c(),SampleType=c(),NF1Region=c(),Position=c(),Chromosome=c(),Origin=c())
 
-for(i in sample.names){
+for(i in names(sample.data)){
     #first get general population distribution
     list.of.lists$LogRRatio=c(list.of.lists$LogRRatio,lrr[,i])
     list.of.lists$BAlleleFreq=c(list.of.lists$BAlleleFreq,baf[,i])
@@ -62,7 +62,7 @@ for(i in sample.names){
     list.of.lists$NF1Region=c(list.of.lists$NF1Region,in.region)
     list.of.lists$Position=c(list.of.lists$Position,all.pos)
     list.of.lists$Chromosome=c(list.of.lists$Chromosome,all.chr)
-    list.of.lists$Origin=c(list.of.lists$Origin,rep(origin[which(sample.names==i)],nrow(lrr)))
+    list.of.lists$Origin=c(list.of.lists$Origin,rep(origin[which(names(sample.data)==i)],nrow(lrr)))
 
 }
 df<-data.frame(list.of.lists)
@@ -114,7 +114,7 @@ sf=File('ntap_cnv_chr17_values.pdf',parentId='syn5014748')
 synStore(sf)
 ###STEP 3: do segmentation analysis
 
-cna <- CNA(lrr[is.autosome,], as.character(all.chr)[is.autosome], all.pos[is.autosome], data.type="logratio",sample.names)
+cna <- CNA(lrr[is.autosome,], as.character(all.chr)[is.autosome], all.pos[is.autosome], data.type="logratio",names(sample.data))
 
 
 smoothed.cna <- smooth.CNA(cna)
