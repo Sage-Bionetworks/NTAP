@@ -133,11 +133,21 @@ write.table(segment.smoothed.cna.sundo$output, file="ntap_clp_cbs_undosd2.seg",
 
 ##put these files in synapse analysis directory
 sf=File('ntap_clp_cbs_noundo.seg',parentId='syn5014748')
-synStore(sf,used=list(list(name='segmentCNVData.R',url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/segmentCNVData.R',wasExecuted=TRUE),
+synStore(sf,used=list(list(name='segmentCNVData.R',
+                url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/segmentCNVData.R',wasExecuted=TRUE),
                 list(entity='syn5005069',wasExecuted=FALSE),
-              list(name='CNVData.R',url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE)))
+                list(name='CNVData.R',
+                     url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE)),
+         activityName='Segmentation analysis of copy alterations')
 
 
 
 sf=File('ntap_clp_cbs_undosd2.seg',parentId='syn5014748')
-synStore(sf)
+synStore(sf,used=list(list(name='segmentCNVData.R',
+                url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/segmentCNVData.R',wasExecuted=TRUE),
+                list(entity='syn5005069',wasExecuted=FALSE),
+                list(name='CNVData.R',
+                     url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE),
+                list(name='CNVData.R',
+                     url='https://raw.githubusercontent.com/sgosline/NTAP/master/pnfCellLines/bin/CNVData.R',wasExecuted=TRUE)),
+         activityName='Segmentation analysis of copy alterations with filtering')
