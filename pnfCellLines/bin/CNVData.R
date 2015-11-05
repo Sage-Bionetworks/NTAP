@@ -25,6 +25,11 @@ names(clnames)<-snpfiles$entity.sampleID
 genotype<-snpfiles$'entity.sampleGenotype'
 names(genotype)<-clnames
 
+cnv_annotation_data<-function(){
+    annots=snpfiles
+    colnames(annots)<-c('Origin','sample','Genotype','synapseID','Name')
+    return(annots)
+}
 
 ##here is a basic function to get annotation data
 snp_annotation_data<-function(){
