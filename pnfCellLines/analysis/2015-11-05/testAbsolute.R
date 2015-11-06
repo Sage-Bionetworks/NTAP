@@ -30,11 +30,12 @@ run_abs<-function(fname){
                 min.mut.af=0,sigma.p=sigma.p,results.dir='abs_res',verbose=TRUE,
                 output.fn.base=oname,primary.disease='PNF',max.as.seg.count=max.as.seg.count,
                 max.non.clonal = max.non.clonal, max.neg.genome=max.neg.genome)
+    
 }
 
-
-sapply(unique(segs$ID),function(x){
+require(parallel)
+mclapply(unique(segs$ID),function(x){
     fname=paste(x,'seg',sep='.')
     write.table(segs[which(segs$ID==x),-1],file=paste(x,'seg',sep='.'),sep='\t')
     run_abs(fname)
-})
+},mc.cores=6)
