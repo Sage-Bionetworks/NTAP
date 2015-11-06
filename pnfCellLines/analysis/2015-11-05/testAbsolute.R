@@ -15,9 +15,9 @@ library(ABSOLUTE)
 run_abs<-function(fname){
     sigma.p <- 0
     max.sigma.h <- 0.02
-    min.ploidy <- 0.95
-    max.ploidy <- 10
-    max.as.seg.count <- 1500
+    min.ploidy <- 0.90
+    max.ploidy <- 8
+    max.as.seg.count <- 2500
     max.non.clonal <- 0
     max.neg.genome <- 0
     copy_num_type <- "allelic"
