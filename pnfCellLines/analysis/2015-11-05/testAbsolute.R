@@ -18,8 +18,8 @@ run_abs<-function(fname){
     min.ploidy <- 0.90
     max.ploidy <- 8
     max.as.seg.count <- 2500
-    max.non.clonal <- 0
-    max.neg.genome <- 0
+    max.non.clonal <- .2
+    max.neg.genome <- .2
     copy_num_type <- "allelic"
 
     oname=gsub('.seg','_PNF_CellLineSample',fname)
@@ -30,7 +30,7 @@ run_abs<-function(fname){
                 min.mut.af=0,sigma.p=sigma.p,results.dir='abs_res',verbose=TRUE,
                 output.fn.base=oname,primary.disease='PNF',max.as.seg.count=max.as.seg.count,
                 max.non.clonal = max.non.clonal, max.neg.genome=max.neg.genome)
-    
+
 }
 
 require(parallel)
