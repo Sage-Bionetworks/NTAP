@@ -13,7 +13,7 @@ source("../../bin/CNVData.R")
 if(!exists("segdata"))
     segdata <- tier1_segmentedData(FALSE)
 if(!exists("segdata2"))
-    segdata2 <- tier2_segmentedData(TRUE)
+    segdata2 <- tier1_segmentedData(TRUE)
 
 
 
