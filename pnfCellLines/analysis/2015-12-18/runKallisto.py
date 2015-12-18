@@ -16,3 +16,4 @@ for a in allsamps:
     f2=os.path.join(fqdir,a+'_0_2.fastq.gz')
     kcmd='~/kallisto_linux-v0.42.4/kallisto quant -i Homo_sapiens.GRCh38.rel79.idx '+f1+' '+f2+' -o '+a
     print kcmd
+    os.system(kcmd)
