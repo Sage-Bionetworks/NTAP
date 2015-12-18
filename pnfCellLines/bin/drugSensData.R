@@ -5,6 +5,8 @@
 ##
 library(synapseClient)
 library(data.table)
+library(ggbiplot)
+library(pheatmap)
 synapseLogin()
 fileparent='syn5522627'
 
@@ -15,20 +17,33 @@ hind=which(qr$entity.id==headerfile)
 header=read.table(synGet(qr[hind,'entity.id'])@filePath,sep='-',fill=T)
 dfiles<-qr[-hind,]
 
-valsOfInterest<-names(allfiles[[1]])[4:13]
+##first read in all files and update curve class
+allfiles<-lapply(dfiles$entity.id,function(x) {
+  #print(x)
+  res=as.data.frame(fread(synGet(x)@filePath,sep=',',header=T))
+  if('CRC'%in%colnames(res))
+    cl=res$CRC
+  else
+    cl=res$CCLASS2
+  res$CurveClass<-rep("Inconclusive",length(cl))
+  res$CurveClass[which(cl%in%c(1.1, 1.2, 2.1, 2.2))]<-'Enhances'
+  res$CurveClass[which(cl%in%c(-1.1, -1.2, -2.1, -2.2))]<-'Inhibits'
+  res$CurveClass[which(cl==4)]<-'Inactive'
+  return(res)
+})
+names(allfiles)<-dfiles$entity.sampleName
+
 
 ##now for each drug, collect a value and put into data frame
 getValueForAllCells<-function(valname){
+  #read in data
+  valsOfInterest<-c(names(allfiles[[1]])[4:13],'CurveClass')
   if(!valname%in%valsOfInterest){
     print(paste("Value should be one of",paste(valsOfInterest,collapse=',')))
     return(NULL)
   }else{
     print(paste('Computing',valname,'for all cells'))
   }
-    
-  #read in data
-  allfiles<-lapply(dfiles$entity.id,function(x) as.data.frame(fread(synGet(x)@filePath,sep=',',header=T)))
-  names(allfiles)<-dfiles$entity.sampleName
   
   #get all drugs
   #ssalldrugs<-unique(allfiles[[1]]$name)
@@ -43,33 +58,58 @@ getValueForAllCells<-function(valname){
   return(drug.values)
 }
 
-plotOneCell<-function(cellname){
+plotOneCell<-function(cellname,as.categ=FALSE,use.disc=FALSE){
   td<-allfiles[[cellname]]
   #ntd<-td[,c(5:13,15:36)]
   ntd<-td[,5:13]
   zv<-which(apply(ntd,1,function(x) any(is.na(x))))
   nztd<-ntd[-zv,]
   pc=prcomp(nztd,scale.=TRUE)
-  png(paste('CRCValuesByDrugFor',cellname,'.png',sep=''))
+  png(paste('CRC',ifelse(as.categ,'cat',''),ifelse(use.disc,'discrete',''),'ValuesByDrugFor',cellname,'.png',sep=''))
   if('CRC' %in% names(td))
     cl=td$CRC[-zv]
   else
     cl=td$CCLASS2[-zv]
-    p<-ggbiplot(pc,groups=cl)+ggtitle(paste('Drug response panel for',cellname))
+  if(as.categ){
+    cl=as.factor(cl)
+  }else if(use.disc){
+    cl=as.factor(td$CurveClass[-zv])
+  }
+  
+  p<-ggbiplot(pc,groups=cl)+ggtitle(paste('Drug response panel for',cellname))
   print(p)
   dev.off()
 }
 
-plotMostVariableVals<-function(valname){
+plotMostVariableVals<-function(valname,ft='png'){
     drug.values<-getValueForAllCells(valname)
     
     #navals<-which(apply(drug.values,1,function(x) any(is.na(x))))
     #ddv<-drug.values[-navals,]
-    
-    drug.var<-apply(drug.values,1,var)
-    mv<-drug.values[order(drug.var,decreasing=T)[1:50],]
+    if(valname=='CurveClass'){
+      av<-drug.values[which(apply(drug.values,1,function(x) length(which(x=='Inhibits'))==5)),]
+      levs<-as.factor(av)$levels
+      mv<-apply(av,2,function(x) as.numeric(factor(x,levels=levs)))
+      colnames(mv)<-colnames(av)
+      rownames(mv)<-rownames(av)
+    }else{
+      drug.var<-apply(drug.values,1,var)
+      mv<-drug.values[order(drug.var,decreasing=T)[1:50],]
+     }
     gt<-dfiles$entity.sampleGenotype
     names(gt)<-dfiles$entity.sampleName
-    pheatmap(t(mv),annotation_row=data.frame(Genotype=gt),cellwidth=10,cellheight=10,file=paste('drugsWithMostVariable',valname,'AcrossCellLines.png',sep=''))
+    pheatmap(t(mv),annotation_row=data.frame(Genotype=gt),cellwidth=10,cellheight=10,file=paste('drugsWithMostVariable',valname,'AcrossCellLines.',ft,sep=''))
   return(drug.values)  
+}
+library(ggplot2)
+
+##need to show dose response curves.
+doseResponseCurve<-function(cell,drug){
+  cell.resp=allfiles[[cell]]
+  drug.dat<-cell.resp[match(drug,cell.resp$name),]
+  dvals<-unlist(drug.dat[grep('DATA[0-9+]',names(drug.dat))])
+  cvals<-unlist(drug.dat[grep('^C[0-9+]',names(drug.dat))])
+  df<-data.frame(Response=dvals,Concentration=cvals)
+  r<-ggplot(df,aes(x=Concentration,y=Response))+geom_line()+scale_x_log10()
+  print(r)
 }

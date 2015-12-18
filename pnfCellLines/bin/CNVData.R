@@ -14,6 +14,7 @@ synapseLogin()
 if(!exists('snpfiles'))
     snpfiles<-synapseQuery('SELECT id,sampleName,sampleGenotype,sampleID,sampleOrigin FROM entity where parentId=="syn4988794"')
 
+snpfiles=snpfiles[which(!is.na(snpfiles$entity.sampleID)),]
 
 #now get annotations
 origin<-snpfiles$'entity.sampleOrigin'

@@ -98,7 +98,7 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
         scale_color_discrete(name = '') +
             theme(legend.direction = 'horizontal', legend.position = 'top')
     print(gb)
-    colnames(tm) <- clnames[colnames(tm)]
+   # colnames(tm) <- clnames[colnames(tm)]
 
     dev.off()
     fname=paste('most_variable',topGenes,byval,'by',metric,'logRRatios_dendro.png',sep='_')
@@ -110,10 +110,10 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
 
     fname=paste('most_variable',topGenes,byval,'by',metric,'logRRatios_heatmap.png',sep='_')
     if(byval=='gene')
-        pheatmap(tm,annotation_row=data.frame(NF1Corr=nfcor),
-                 annotation_col=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
+        pheatmap(t(tm),annotation_col=data.frame(NF1Corr=nfcor),
+                 annotation_row=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
     else
-        pheatmap(tm,annotation_col=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
+        pheatmap(t(tm),annotation_row=data.frame(Genotype=genotype),cellwidth=10,cellheight=10,file=fname)
     ## Analysis 2
     ##let's do supervised clustering, look for cnv values that correlate with genotype
     gcors=apply(M,1,function(x) cor(x,as.numeric(as.factor(genotype[colnames(tm)]))))
@@ -127,7 +127,8 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
 
                                         #now let's take top 100 genes and plot/cluster again
     tm=M[order(gcors,decreasing=T)[1:100],]
-
+    colnames(tm) <- clnames[colnames(tm)]
+    
 
     fname=paste('most_gt_correlated',topGenes,byval,'by',metric,'logRRatios.pdf',sep='_')
     pdf(fname)
@@ -146,10 +147,10 @@ plotClusteredSegmentData<-function(segdat,byval='gene',metric='median',topGenes=
     fname=paste('most_gt_correlated',topGenes,byval,'by',metric,'logRRatios_heatmap.png',sep='_')
 
     if(byval=='gene')
-        pheatmap(tm,annotation_row=data.frame(NF1Corr=nfcor),annotation_col=data.frame(Genotype=genotype),
+        pheatmap(t(tm),annotation_col=data.frame(NF1Corr=nfcor),annotation_row=data.frame(Genotype=genotype),
                  cellwidth=10,cellheight=10,file=fname)
     else
-        pheatmap(tm,annotation_col=data.frame(Genotype=genotype),
+        pheatmap(t(tm),annotation_row=data.frame(Genotype=genotype),
                  cellwidth=10,cellheight=10,file=fname)
 }
 
