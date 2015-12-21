@@ -1,7 +1,7 @@
 ##test various curve-fitting metrics
 library(nplr)
 library(drc)
-library(drfit)
+#library(drfit)
 source("../../bin/drugSensData.R")
 
 curveCompare<-function(datfile){
@@ -19,6 +19,9 @@ curveCompare<-function(datfile){
   names(df)[3]='substance'
   d.res=drcfit(df)
 ##  compare with points from GRID provided by NCATS
+})
 }
 
-lapply(allfiles,function(x)curveCompare)
+all.res=lapply(allfiles, curveCompare)
+
+#now what? 
