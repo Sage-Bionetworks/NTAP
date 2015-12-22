@@ -43,16 +43,18 @@ tab.q=synTableQuery('SELECT distinct "Sample Name","Sample ID","Sample Origin","
 
 samp.to.cell<-lapply(filedirs,function(x){
   cellLine=samp.mapping$CellLine[match(paste(x,'0',sep='_'),samp.mapping$File_Name)]
-  c(tab.q[match(cellLine,tab.q$`Sample Name`),],FlowCellLane=x)
+  res=c(tab.q[match(cellLine,tab.q$`Sample Name`),],FlowCellLane=x)
+  names(res)<-c('sampleName','sampleID','sampleOrigin','sampleGenotype','flowCellLane')
+  res
 })
 names(samp.to.cell)=filedirs
 
 ##write files
 file.res<-lapply(filedirs,function(x){
   filename=paste(x,'_RNASeq_Kallisto_grch38_quants.tsv',sep='')
-  write.table(newfiles[[x]],file=filename,sep='\t')
+  write.table(newfiles[[x]],file=filename,sep='\t',row.names=F)
   newf=File(path=filename,parentId='syn5562003')
   synSetAnnotations(newf)<-samp.to.cell[[x]]
-  newf=synStore(newf,executed='')
+  newf=synStore(newf,executed='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2015-12-21/annotateMapUploadRNA.R')
 })
 ##store on synapse
