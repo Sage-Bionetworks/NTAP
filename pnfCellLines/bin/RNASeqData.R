@@ -37,19 +37,19 @@ rnaKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm'){
           return(quants)
         })
         fname=paste('kallistoDerived',metric,'RNASeq_values.tsv',sep='')
-        write.table(quants,file=fname,sep='\t')
+        write.table(all.quants,file=fname,sep='\t')
         sf=File(fname,parentId=rna.dir)
-        synStore(sf,used='')
+        synStore(sf,used='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/RNASeqData.R')
         return(all.quants)
                 
     }else{
       if(metric=='est_counts')
-        return(as.data.frame(fread(synGet('')@filePath)))
+        return(read.table(synGet('syn5562376')@filePath))
       else if(metric=='tpm')
-        return(as.data.frame(fread(synGet('')@filePath)))
+        return(read.table(synGet('syn5562378')@filePath))
      
     }
   
 }
   
-}
+
