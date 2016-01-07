@@ -10,6 +10,9 @@ library(data.table)
 synapseLogin()
 belltown.dir='../2016-01-05/'
 filedirs=list.files(belltown.dir)
+fqc=c(grep('fastqc',filedirs),grep('.out',filedirs))
+if(length(fqc)>0)
+    filedirs=filedirs[-fqc]
                                         #each directory is a different lane/run.
 filedirs=filedirs[grep("C85",filedirs)]
 all.dat<-lapply(filedirs,function(x) as.data.frame(fread(paste(belltown.dir,x,'abundance.tsv',sep='/'),sep='\t')))
@@ -18,6 +21,13 @@ names(all.dat)<-filedirs
 
 ##first get all gene names, add to files
 all.genes=all.dat[[1]][,1]
+newfiles<-lapply(all.dat,function(x){
+    dat<-x[,-1]
+    ids<-t(sapply(x[,1],function(x) unlist(strsplit(x,split='|',fixed=T))))
+    colnames(ids)<-c('EnsGene','EnsTrans','OttGene','OttTrans','HugoTrans','HugoSymbol','Length','Descrip')
+    new.dat<-data.frame(ids,dat)
+    return(new.dat)
+})
 
 #require(biomaRt)
 #ensembl=useMart("ENSEMBL_MART_ENSEMBL",dataset="hsapiens_gene_ensembl",host='www.ensembl.org')
@@ -36,7 +46,7 @@ all.genes=all.dat[[1]][,1]
 #})
 #names(newfiles)=names(all.dat)
 
-##then create annotations 
+##then create annotations
 samp.mapping=read.table(synGet('syn5562006')@filePath,sep=',',header=T)
 
 tab.q=synTableQuery('SELECT distinct "Sample Name","Sample ID","Sample Origin","Sample Genotype" FROM syn5014742')@values
