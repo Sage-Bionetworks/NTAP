@@ -23,7 +23,15 @@ rnaKallistoFiles<-function(){
   return(all.files)
 }
 
-rnaKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm'){
+rnaAnnotations<-function(){
+  rfiles<-synapseQuery(paste('select id,sampleName from entity where parentId=="',rna.dir,'"',sep=''))
+  rfiles<-rfiles[which(!is.na(rfiles$entity.sampleName)),]
+  samps<-rfiles$entity.sampleName
+  names(samps)<-rfiles$entity.id
+  return(samps)
+}
+
+rnaKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm',useCellNames=FALSE){
   ##metric is either 'tpm' or 'est_counts' 
   if(!metric%in%c('tpm','est_counts')){
     print(paste(metric,'is not a valid kallisto output'))
@@ -40,16 +48,20 @@ rnaKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm'){
         write.table(all.quants,file=fname,sep='\t')
         sf=File(fname,parentId=rna.dir)
         synStore(sf,used='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/RNASeqData.R')
-        return(all.quants)
+        tab=all.quants
                 
     }else{
       if(metric=='est_counts')
-        return(read.table(synGet('syn5562376')@filePath))
+        tab=read.table(synGet('syn5562376')@filePath)
       else if(metric=='tpm')
-        return(read.table(synGet('syn5562378')@filePath))
+        tab=read.table(synGet('syn5562378')@filePath)
      
     }
-  
+  if(useCellNames){
+    annotes=rnaAnnotations()
+    colnames(tab)<-annotes[colnames(tab)]
+  }
+  return(tab)
 }
   
 

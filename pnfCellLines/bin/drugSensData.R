@@ -31,13 +31,14 @@ allfiles<-lapply(dfiles$entity.id,function(x) {
   res$CurveClass[which(cl==4)]<-'Inactive'
   return(res)
 })
+
 names(allfiles)<-dfiles$entity.sampleName
 
+valsOfInterest<<-c(names(allfiles[[1]])[4:13],'CurveClass')
 
 ##now for each drug, collect a value and put into data frame
 getValueForAllCells<-function(valname){
   #read in data
-  valsOfInterest<-c(names(allfiles[[1]])[4:13],'CurveClass')
   if(!valname%in%valsOfInterest){
     print(paste("Value should be one of",paste(valsOfInterest,collapse=',')))
     return(NULL)
