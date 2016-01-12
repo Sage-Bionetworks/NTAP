@@ -36,13 +36,18 @@ rnaGencodeKallistoFiles<-function(){
   return(all.files)
 }
 
-rnaAnnotations<-function(){
-  rfiles<-synapseQuery(paste('select id,sampleName from entity where parentId=="',grch38.dir,'"',sep=''))
+rnaAnnotations<-function(gencode=TRUE){
+  if(gencode)
+    dirname=gencode.dir
+  else
+    dirname=grch38.dir
+  rfiles<-synapseQuery(paste('select id,sampleName from entity where parentId=="',dirname,'"',sep=''))
   rfiles<-rfiles[which(!is.na(rfiles$entity.sampleName)),]
   samps<-rfiles$entity.sampleName
   names(samps)<-rfiles$entity.id
   return(samps)
 }
+
 
 rnaKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm',useCellNames=FALSE){
   ##metric is either 'tpm' or 'est_counts'
@@ -104,7 +109,7 @@ rnaGencodeKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm',useCellName
 
     }
   if(useCellNames){
-    annotes=rnaAnnotations()
+    annotes=rnaAnnotations(gencode=TRUE)
     colnames(tab)<-annotes[colnames(tab)]
   }
   return(tab)
