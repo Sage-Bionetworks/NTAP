@@ -176,6 +176,47 @@ plotTranscriptsOfGene<-function(gene='NF1',count.mat,metric='tpm',dolog=FALSE,tt
   return(n.mat)
 }
 
+plotMostVariable<-function(count.mat,metric='tpm',ttype=c(),doLog=F,top=100){
+  require('pheatmap')
+  samp.names=getSampleNames(colnames(count.mat))
+  samp.gen=getSampleGenotype(colnames(count.mat))
+  
+  names(samp.gen)<-samp.names
+  colnames(count.mat)<-samp.names
+  if(doLog)
+    count.mat=log2(count.mat+0.01)
+  
+  full.trans=lapply(rownames(count.mat),function(x){
+    unlist(strsplit(x,split='.',fixed=T))
+  })
+  all.ttype<-lapply(full.trans,function(gn)
+    gn[length(gn)])
+  
+  #now name all transcript types by gene name
+  #print(full.trans)
+  names(all.ttype)<-sapply(full.trans,function(x) {
+    et=grep("ENST",x)
+    paste(x[1:et],collapse='.')})
+  rownames(count.mat)<-names(all.ttype)
+  
+  if(length(ttype)>0){
+    righttype=sapply(all.ttype,function(x) x%in%ttype)
+    count.mat=count.mat[which(righttype),]
+  }
+  
+  av<-apply(count.mat,1,var)
+  tg<-order(av,decreasing=T)[1:top]
+  
+  fname=paste('top',top,'Variable',ifelse(length(ttype)>0,paste(ttype,collapse='_'),''),'TranscriptsBy',ifelse(doLog,'Log2',''),metric,paste(ttype,collapse='_'),'.png',sep='')
+  pheatmap(count.mat[tg,],cellwidth=10,cellheight=10,
+           annotation_col=data.frame(Genotype=orig.samp.gen),
+           annotation_row=data.frame(TranscriptType=unlist(all.ttype)),
+           clustering_distance_rows='correlation',clustering_distance_cols='correlation',filename=fname)
+  
+  
+  
+}
+
 plotPCA<-function(count.mat,metric='tpm',ttype=c()){
     require(ggbiplot)
     samp.names=getSampleNames(colnames(count.mat))
@@ -204,5 +245,5 @@ plotPCA<-function(count.mat,metric='tpm',ttype=c()){
 
 
 calcDiffEx<-function(){
-
+  require('sleuth')
 }
