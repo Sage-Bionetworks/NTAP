@@ -143,10 +143,22 @@ plotTranscriptsOfGene<-function(gene='NF1',count.mat,metric='tpm',dolog=FALSE,tt
   print(paste("Found",length(nf1),gene,'transcripts'))
     n.mat<-count.mat[nf1,]
     zvals<-which(apply(n.mat,1,function(x) all(x==0)))
+    #now figure out which type of transcript it is
+    full.trans=lapply(rownames(n.mat),function(x){
+      unlist(strsplit(x,split='.',fixed=T))
+    })
+    all.ttype<-lapply(full.trans,function(gn)
+      gn[length(gn)])
+    
+    #now name all transcript types by gene name
+    #print(full.trans)
+    names(all.ttype)<-sapply(full.trans,function(x) {
+      et=grep("ENST",x)
+      paste(x[1:et],collapse='.')})
+    rownames(n.mat)<-names(all.ttype)
+    
     if(length(ttype)>0){
-        righttype=sapply(rownames(n.mat),function(x){
-            gn=unlist(strsplit(x,split='.',fixed=T))
-            gn[length(gn)]%in%ttype})
+        righttype=sapply(all.ttype,function(x) x%in%ttype)
         n.mat=n.mat[which(righttype),]
     }
     if(length(zvals)>0 && length(zvals)!=nrow(n.mat))
@@ -157,8 +169,11 @@ plotTranscriptsOfGene<-function(gene='NF1',count.mat,metric='tpm',dolog=FALSE,tt
         else
             n.mat=log2(n.mat+1)
     fname=paste(gene,'TranscriptsBy',ifelse(dolog,'Log2',''),metric,paste(ttype,collapse='_'),'.png',sep='')
-    pheatmap(n.mat,cellwidth=10,cellheight=10,annotation_col=data.frame(Genotype=orig.samp.gen),filename=fname)
-
+    pheatmap(n.mat,cellwidth=10,cellheight=10,
+             annotation_col=data.frame(Genotype=orig.samp.gen),
+             annotation_row=data.frame(TranscriptType=unlist(all.ttype)),
+             clustering_distance_rows='correlation',clustering_distance_cols='correlation',filename=fname)
+  return(n.mat)
 }
 
 plotPCA<-function(count.mat,metric='tpm',ttype=c()){

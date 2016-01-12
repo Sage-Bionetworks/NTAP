@@ -7,8 +7,11 @@ source('../../bin/RNASeqData.R')
 library(ggplot2)
 
 ##first compare drug sensitivity data with RNA/CNV
-drugRna<-function(valname='MAXR',gene='NF1'){
-  rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
+drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F){
+  if(useGencode)
+    rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
+  else
+    rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
   drugMat<-getValueForAllCells(valname)
   
   ##now look for drug/rna correlations!
@@ -16,6 +19,8 @@ drugRna<-function(valname='MAXR',gene='NF1'){
   rnavars<-which(apply(rnaMat[,cells],1,var)==0)
   nzvMat=rnaMat[-rnavars,]
   nf1Mat=nzvMat[grep(paste("^",gene,".EN",sep=''),rownames(nzvMat)),]
+  if(doLog)
+    nf1Mat=log2(nf1Mat+0.01)
   all.cors=apply(nf1Mat[,cells],1,function(x){
     apply(drugMat[,cells],1,function(y)
       cor(x,y,use='pairwise.complete.obs'))})
@@ -45,17 +50,20 @@ drugRna<-function(valname='MAXR',gene='NF1'){
   }
   df=data.frame(DrugVals=drug,RNAExpr=exp,DrugName=drugname,Transcript=trans)
   #names(df)[1]=paste('Drug',valname,'Value',sep='')
-  png(paste(valname,'CorrelatedWith',gene,'expression.png',sep=''))
+  png(paste(valname,'CorrelatedWith',gene,ifelse(doLog,'log2',''),'expression.png',sep=''))
   p<-ggplot(df,aes(x=RNAExpr,y=DrugVals))+geom_point(aes(colour=DrugName,shape=Transcript))+geom_line(aes(colour=DrugName,shape=Transcript))
-  p<-p+ggtitle(paste(gene,'Expression for',valname,'values, corrected p<0.1'))
+  p<-p+ggtitle(paste(gene,'Expression for',valname,'\nvalues, corrected p<0.1'))
   print(p)
   dev.off()
 }
 
 ##now collapse by gene
 ##first compare drug sensitivity data with RNA/CNV
-drugGene<-function(valname='MAXR',gene='NF1'){
-  rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
+drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
+  if(useGencode)
+    rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
+  else
+    rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
   drugMat<-getValueForAllCells(valname)
   
   ##now look for drug/rna correlations!
