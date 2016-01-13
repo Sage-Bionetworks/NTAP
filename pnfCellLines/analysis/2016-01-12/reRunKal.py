@@ -22,7 +22,7 @@ for a in allsamps:
     f1=os.path.join(fqdir,a+'_0_1.fastq.gz')
     f2=os.path.join(fqdir,a+'_0_2.fastq.gz')
     ofile=a+'.out'
-    kcmd='~/kallisto_linux-v0.42.4/kallisto quant --threads=8 -i '+iname+' '+f1+' '+f2+' -o '+a+' 2>'+ofile
+    kcmd='~/kallisto_linux-v0.42.4/kallisto quant --boostrap-samples=100 --threads=8 -i '+iname+' '+f1+' '+f2+' -o '+a+' 2>'+ofile
     print kcmd
     os.system(kcmd)
     
