@@ -96,6 +96,7 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NUL
 plotVals<-function(data.obj,qval){
   res=sleuth_results(data.obj, 'Genotype--')
   sel=which(res.tab.nohet$qval<qval)
+  print(paste("Found",length(sel),'diff ex genes at q=',qval))
   targs=as.character(res.tab.nohet$target_id[sel])
   trans.type=sapply(as.character(targs),function(x) {
     arr=unlist(strsplit(x,split='|',fixed=T))
