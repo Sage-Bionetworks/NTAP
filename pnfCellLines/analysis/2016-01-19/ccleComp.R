@@ -10,14 +10,14 @@ synq=synapseQuery("select id,name from entity where parentId=='syn2325154'")
 bcfiles<-synq[grep('bias_corrected.sf',synq[,1]),]
 
 ##now download all data
-alldat<-lapply(bcfiles[1:10,2],function(x){
+alldat<-lapply(bcfiles[,2],function(x){
   print(paste('Getting/loading',x))
   tab<-read.table(synGet(x)@filePath)
   colnames(tab)<-c('Gene','Length','tpm','est_counts')
   return(tab)
 })
 
-fnames<-sapply(bcfiles[1:10,1],function(x) gsub('_quant_bias_corrected.sf','',fixed=T,x))
+fnames<-sapply(bcfiles[,1],function(x) gsub('_quant_bias_corrected.sf','',fixed=T,x))
 
 names(alldat)<-fnames
 #extract TPMs and ecounts from sailfish files
