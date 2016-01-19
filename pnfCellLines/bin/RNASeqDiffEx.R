@@ -117,7 +117,7 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NUL
   
 }
 
-plotVals<-function(data.obj,qval,ttype=c()){
+plotVals<-function(data.obj,qval,ttype=c(),prefix=''){
   res=sleuth_results(data.obj, 'OneAllele+')
   sel=which(res$qval<qval)
   print(paste("Found",length(sel),'diff ex transcripts at q=',qval))
@@ -139,7 +139,7 @@ plotVals<-function(data.obj,qval,ttype=c()){
   
   names(tnames)<-targs
   names(trans.type)<-tnames
-  plotGenesInSamples(data.obj,targs,'tpm',tnames,trans.type[sel],fname=paste('diffex',paste(ttype,collapse='_'),'TranscriptsQ',qval,'.png',sep=''))
+  plotGenesInSamples(data.obj,targs,'tpm',tnames,trans.type[sel],fname=paste(prefix,'diffex',paste(ttype,collapse='_'),'TranscriptsQ',qval,'.png',sep=''))
   
   
 }

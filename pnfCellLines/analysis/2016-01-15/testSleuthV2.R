@@ -60,3 +60,5 @@ pmod<-buildSleuthModel(pdf,inc=c("Sex"))
 
 ##
 ptab<-getSleuthTable(pmod)
+plotVals(pmod,qval=0.1,prefix='primaryOnly')
+plotVals(pmod,qval=0.1,ttype=c('protein_coding'),prefix='primaryOnly')
