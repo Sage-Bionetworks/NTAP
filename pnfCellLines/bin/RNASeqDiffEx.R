@@ -47,11 +47,11 @@ buildGencodeTargetMap<-function(df){
 }
 
 ##now we need to build the sleuth object
-buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele+'){
+buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele',alt='+'){
 
   t2g2<-read.table('../../data/gencodeGeneTranscriptMap.csv',sep=',',header=T)
   ##first build sleuth object
-  formstring='~ OneAllele'
+  formstring=paste('~',test)
   ex=paste(inc,collapse=' + ')
   if(ex!="")
     formstring=paste(formstring,ex,sep=' + ')
@@ -62,14 +62,14 @@ buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele+'){
   ffit<-sleuth_fit(sf)
 
   ##now ask question
-  fp <- sleuth_wt(ffit, test)
+  fp <- sleuth_wt(ffit, paste(test,alt),sep=''))
 
   return(fp)
 }
 
-getSleuthTable<-function(sleuthfit){
+getSleuthTable<-function(sleuthfit,test,alt){
   #write results to table
-  res.tab<-sleuth_results(sleuthfit,'OneAllele+')
+  res.tab<-sleuth_results(sleuthfit,paste(test,alt,sep=''))
   rtab<-apply(res.tab,2,unlist)
   rtab
 }
@@ -80,7 +80,7 @@ getGOList<-function(sleuthfit){
 }
 
 
-plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NULL,fname='selectedGenesInData.png'){
+plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NULL,fname='selectedGenesInData.png',test='OneAllele',alt='+'){
   tabd_df <- obj$obs_norm[obj$obs_norm$target_id %in% transcripts,]
   ##select unit to plo
   if (units == "tpm") {
@@ -102,7 +102,7 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NUL
   dm=design_matrix(obj)
   genotype=rep("-",nrow(dm))
   names(genotype)<-rownames(dm)
-  #genotype[which(dm[,'Genotype+-']==1)]<-'+-'
+  genotype[which(dm[,'Genotype+-']==1)]<-'+-'
   genotype[which(dm[,'OneAllele+']==1)]<-'+'
 
 

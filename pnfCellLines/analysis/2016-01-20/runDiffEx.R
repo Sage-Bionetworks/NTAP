@@ -4,6 +4,9 @@ source("../../bin/RNASeqDiffEx.R")
 
 fulldf<-buildDiffExDf()
 
+genotype.test<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='+')
+culture.test<-buildSleuthModel(fulldf,inc='Genotype',test='Culture',alt='primary')
+
 
 
 plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NULL,fname='selectedGenesInData.png'){
