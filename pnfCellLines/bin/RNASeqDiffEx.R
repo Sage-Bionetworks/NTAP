@@ -92,7 +92,7 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm",
 
   ##select unit to plo
   if (units == "tpm") {
-    tabd_df <- dplyr::select(tabd_df, target_id, sample,
+    tabd_df <- dplyr::select(tabd_df, gene,target_id, sample,
                              tpm)
     if(collapseByGene)
         tabd_df <- reshape2::dcast(tabd_df, gene ~ sample,
@@ -102,7 +102,7 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm",
                                    value.var = "tpm")
   }
   else if (units == "est_counts") {
-    tabd_df <- dplyr::select(tabd_df, target_id, sample,
+    tabd_df <- dplyr::select(tabd_df, gene,target_id, sample,
                              est_counts)
     if(collapseByGene)
         tabd_df <- reshape2::dcast(tabd_df, gene ~ sample,

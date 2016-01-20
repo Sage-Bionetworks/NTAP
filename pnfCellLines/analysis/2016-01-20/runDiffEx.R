@@ -40,8 +40,8 @@ doAnalysis<-function(model, test,alt){
 
     gvals=tab[,'gene']
     names(gvals)<-tab[,'target_id']
-    plotGenesInSamples(model,tab[pcg,'target_id'],units="tpm",
-                       genes=gvals,annotes=NULL,collapseByGene=TRUE,
+    plotGenesInSamples(model,tab[pc,'target_id'],units="tpm",
+                       genes=NULL,annotes=NULL,collapseByGene=TRUE,
                        fname=paste(fname,'sigGenesInHeatmap.pdf'),test=test,alt=alt)
 
 
