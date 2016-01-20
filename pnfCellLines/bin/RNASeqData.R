@@ -168,9 +168,10 @@ plotTranscriptsOfGene<-function(gene='NF1',count.mat,metric='tpm',dolog=FALSE,tt
             n.mat=log2(n.mat+0.01)
         else
             n.mat=log2(n.mat+1)
+    tot.exp<-apply(n.mat,2,sum,na.rm=T)
     fname=paste(gene,'TranscriptsBy',ifelse(dolog,'Log2',''),metric,paste(ttype,collapse='_'),'.png',sep='')
     pheatmap(n.mat,cellwidth=10,cellheight=10,
-             annotation_col=data.frame(Genotype=orig.samp.gen),
+             annotation_col=data.frame(Genotype=orig.samp.gen,TotalExpression=tot.exp),
              annotation_row=data.frame(TranscriptType=unlist(all.ttype)),
              clustering_distance_rows='correlation',clustering_distance_cols='correlation',filename=fname)
   return(n.mat)

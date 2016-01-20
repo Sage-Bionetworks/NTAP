@@ -4,6 +4,15 @@ source('../../bin/RNASeqData.R')
 tpm.mat<-rnaGencodeKallistoMatrix(buildFromFiles=FALSE,useCellNames=TRUE)
 ecounts.mat<-rnaGencodeKallistoMatrix(buildFromFiles=FALSE,metric='est_counts',useCellNames=TRUE)
 
+###collapse by protein-coding
+pcvals<-grep('protein_coding',rownames(tpm.mat))
+prot_coding.tpm=tpm.mat[pcvals,]
+
+##then also collapse by gene
+all.genes<-unique(sapply(rownames(tpm.mat),function(x) unlist(strsplit(x,split='.ENST',fixed=T))[1]))
+pc.genes<-unique(sapply(rownames(prot_coding.tpm),function(x) unlist(strsplit(x,split='.ENST',fixed=T))[1]))
+
+
 ##now get the ccle data
 synq=synapseQuery("select id,name from entity where parentId=='syn2325154'")
 
