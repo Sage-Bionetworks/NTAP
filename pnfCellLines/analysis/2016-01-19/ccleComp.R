@@ -77,8 +77,10 @@ doCorPlots<-function(df,prefix=''){
   pheatmap(tcor,main=paste(prefix,'Q-normed Pearson Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'qnormPearsonCor.png',sep='_'))
 }
 
+
+
 ##add method to do some statistics on the correlations
-doCorStats<-function(df,prefix=''){
+doCorStats<-function(df,prefix='',minCor=0.25){
   #first compute correlation
     tcor=cor(df)
   ##select those stats that are of interest:
@@ -86,13 +88,19 @@ doCorStats<-function(df,prefix=''){
   sel.vals<-tcor[mvals,]
   write.table(sel.vals,paste(prefix,'pearsonCors.tsv',sep=''),sep='\t')
   
+  mmat<-df[,colnames(sel.vals)[unique(which(sel.vals>minCor,arr.ind=T)[,2])]]
+  doCorPlots(mmat,paste(prefix,'minPearsonCor',minCor,sep=''))
+  
   #second: spearman
   tcor=cor(df,method='spearman')
   mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
   sel.vals<-tcor[mvals,]
   
   write.table(sel.vals,paste(prefix,'spearmanCors.tsv',sep=''),sep='\t')
-  #third: quanile normalization
+  mmat<-df[,colnames(sel.vals)[unique(which(sel.vals>minCor,arr.ind=T)[,2])]]
+  doCorPlots(mmat,paste(prefix,'minSpearmanCor',minCor,sep=''))
+  
+    #third: quanile normalization
   
  
   require(preprocessCore)
@@ -103,10 +111,11 @@ doCorStats<-function(df,prefix=''){
 
   sel.vals<-tcor[mvals,]
   write.table(sel.vals,paste(prefix,'qnormedPearson.tsv',sep=''),sep='\t')
-              
+  mmat<-df[,colnames(sel.vals)[unique(which(sel.vals>minCor,arr.ind=T)[,2])]]
+  doCorPlots(mmat,paste(prefix,'minQnormedPearsonCor',minCor,sep=''))              
   
 }
 
 ##not looking great
-#doCorStats(all.tpms,'tpm')
+doCorStats(all.tpms,'tpm')
 doCorStats(all.ecounts,'estCounts')
