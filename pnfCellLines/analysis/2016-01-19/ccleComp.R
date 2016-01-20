@@ -82,16 +82,16 @@ doCorStats<-function(df,prefix=''){
   #first compute correlation
     tcor=cor(df)
   ##select those stats that are of interest:
-  mvals=union(grep("ip",rownames(tcor),grep('NF',rownames(tcor))))
+  mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
   sel.vals<-tcor[mvals,]
-  write.table(sel.vals,paste(prefix,'pearsonCors.tsv',sep='\t'))
+  write.table(sel.vals,paste(prefix,'pearsonCors.tsv',sep=''),sep='\t')
   
   #second: spearman
   tcor=cor(df,method='spearman')
-  mvals=union(grep("ip",rownames(tcor),grep('NF',rownames(tcor))))
+  mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
   sel.vals<-tcor[mvals,]
   
-  write.table(sel.vals,paste(prefix,'spearmanCors.tsv',sep='\t'))
+  write.table(sel.vals,paste(prefix,'spearmanCors.tsv',sep=''),sep='\t')
   #third: quanile normalization
   
  
@@ -99,13 +99,14 @@ doCorStats<-function(df,prefix=''){
   qnormed=normalize.quantiles(as.matrix(df))
   colnames(qnormed)<-colnames(df)
   tcor=cor(qnormed)
-  mvals=union(grep("ip",rownames(tcor),grep('NF',rownames(tcor))))
+  mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
+
   sel.vals<-tcor[mvals,]
-  write.table(sel.vals,paste(prefix,'qnormedPearson.tsv',sep='\t'))
+  write.table(sel.vals,paste(prefix,'qnormedPearson.tsv',sep=''),sep='\t')
               
   
 }
 
 ##not looking great
-doCorStats(all.tpms,'tpm')
+#doCorStats(all.tpms,'tpm')
 doCorStats(all.ecounts,'estCounts')

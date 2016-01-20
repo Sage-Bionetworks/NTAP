@@ -42,6 +42,6 @@ file.res<-lapply(filedirs,function(x){
  #write.table(newfiles[[x]],file=filename,sep='\t',row.names=F)
   newf=File(path=filename,parentId='syn5579785')
   synSetAnnotations(newf)<-samp.to.cell[[x]]
-  newf=synStore(newf,executed='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2015-01-13/annotateUPloadH5s.R')
+  newf=synStore(newf,executed='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-01-13/annotateUPloadH5s.R')
 })
 ##store on synapse
