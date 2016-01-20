@@ -1,10 +1,6 @@
 ##now we want to test diffex
-library('sleuth')
-library('synapseClient')
-synapseLogin()
 
-
-source("../../bin/runDiffEx.R")
+source("../../bin/RNASeqDiffEx.R")
 
 fulldf<-buildDiffExDf()
 
