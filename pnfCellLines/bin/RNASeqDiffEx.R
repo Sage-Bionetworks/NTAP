@@ -142,7 +142,8 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm",
     else
         rownames(tabd_df)=tabd_df[,1]
 
-    names(annotes)<-rownames(tabd_df)
+    if(!is.null(annotes))
+        names(annotes)<-rownames(tabd_df)
 
 
   require(pheatmap)
