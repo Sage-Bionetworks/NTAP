@@ -56,6 +56,7 @@ buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele',alt='+'){
   if(ex!="")
     formstring=paste(formstring,ex,sep=' + ')
 
+  print(paste('Building sleuth model for',formstring))
   sf<-sleuth_prep(df,as.formula(formstring),target_mapping=t2g2)
 
   #now do fit
@@ -80,46 +81,85 @@ getGOList<-function(sleuthfit){
 }
 
 
-plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NULL,fname='selectedGenesInData.png',test='OneAllele',alt='+'){
-  tabd_df <- obj$obs_norm[obj$obs_norm$target_id %in% transcripts,]
+plotGenesInSamples<-function(obj,transcripts,units="tpm",
+                             genes=NULL,annotes=NULL,fname='selectedGenesInData.pdf',
+                             test='OneAllele',alt='+',collapseByGene=FALSE){
+
+    jm = obj$obs_norm
+    jm$gene = obj$target_mapping$gene[match(jm$target_id,obj$target_mapping$target_id)]
+
+    tabd_df <- jm[jm$target_id %in% transcripts,]
+
   ##select unit to plo
   if (units == "tpm") {
     tabd_df <- dplyr::select(tabd_df, target_id, sample,
                              tpm)
-    tabd_df <- reshape2::dcast(tabd_df, target_id ~ sample,
-                               value.var = "tpm")
+    if(collapseByGene)
+        tabd_df <- reshape2::dcast(tabd_df, gene ~ sample,
+                                   value.var = "tpm", fun.aggregate=sum)
+   else
+        tabd_df <- reshape2::dcast(tabd_df, target_id ~ sample,
+                                   value.var = "tpm")
   }
   else if (units == "est_counts") {
     tabd_df <- dplyr::select(tabd_df, target_id, sample,
                              est_counts)
-    tabd_df <- reshape2::dcast(tabd_df, target_id ~ sample,
-                               value.var = "est_counts")
+    if(collapseByGene)
+        tabd_df <- reshape2::dcast(tabd_df, gene ~ sample,
+                                   value.var = "est_counts", fun.aggregate=sum)
+    else
+        tabd_df <- reshape2::dcast(tabd_df, target_id ~ sample,
+                                   value.var = "est_counts")
   }
   else {
     stop("Didn't recognize the following unit: ", units)
   }
 
   dm=design_matrix(obj)
-  genotype=rep("-",nrow(dm))
-  names(genotype)<-rownames(dm)
-  genotype[which(dm[,'Genotype+-']==1)]<-'+-'
-  genotype[which(dm[,'OneAllele+']==1)]<-'+'
+  cul=rep('Immortalized',nrow(dm))
+  names(cul)<-rownames(dm)
+  cul[which(dm[,'Cultureprimary']==1)]<-'Primary'
+
+  if(test=='OneAllele'){
+        oa=rep("-",nrow(dm))
+        names(oa)<-rownames(dm)
+        oa[which(dm[,'OneAllele+'])==1]<-'+'
+        adf=data.frame(OneNF1=oa,Culture=cul)
+  }else if(test=='Genotype'){
+
+      genotype=rep("++",nrow(dm))
+      names(genotype)<-rownames(dm)
+      genotype[which(dm[,'Genotype+-']==1)]<-'+-'
+      genotype[which(dm[,'Genotype--']==1)]<-'--'
+      adf=data.frame(Genotype=genotype,Culture=cul)
+  }
 
 
-  if(is.null(genes))
-    genes=transcripts
-  rownames(tabd_df) <- genes[tabd_df[,1]]
-  names(annotes)<-genes[tabd_df[,1]]
+
+
+    if(!is.null(genes))
+        rownames(tabd_df) <- genes[tabd_df[,1]]
+    else
+        rownames(tabd_df)=tabd_df[,1]
+
+    names(annotes)<-rownames(tabd_df)
+
+
   require(pheatmap)
   if(is.null(annotes))
-    pheatmap(t(log2(tabd_df[,-1]+0.01)),cellheight=10,cellwidth=10,annotation_row=data.frame(Genotype=genotype),clustering_distance_rows='correlation',clustering_distance_cols='correlation',filename=fname)
+      pheatmap(t(log2(tabd_df[,-1]+0.01)),cellheight=10,cellwidth=10,
+               annotation_row=adf,clustering_distance_rows='correlation',
+               clustering_distance_cols='correlation',filename=fname)
   else
-    pheatmap(t(log2(tabd_df[,-1]+0.01)),cellheight=10,cellwidth=10,annotation_row=data.frame(Genotype=genotype),clustering_distance_rows='correlation',clustering_distance_cols='correlation',annotation_col=data.frame(Type=annotes),filename=fname)
+      pheatmap(t(log2(tabd_df[,-1]+0.01)),cellheight=10,cellwidth=10,
+               annotation_row=adf,clustering_distance_rows='correlation',
+               clustering_distance_cols='correlation',
+               annotation_col=data.frame(Type=annotes),filename=fname)
 
 }
 
-plotVals<-function(data.obj,qval,ttype=c(),prefix=''){
-  res=sleuth_results(data.obj, 'OneAllele+')
+plotVals<-function(data.obj,qval,ttype=c(),prefix='',test='OneAllele',alt='+'){
+  res=sleuth_results(data.obj, paste(test,alt,sep=''))
   sel=which(res$qval<qval)
   print(paste("Found",length(sel),'diff ex transcripts at q=',qval))
 

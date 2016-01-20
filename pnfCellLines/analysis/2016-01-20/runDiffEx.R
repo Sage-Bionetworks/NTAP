@@ -4,48 +4,50 @@ source("../../bin/RNASeqDiffEx.R")
 
 fulldf<-buildDiffExDf()
 
-genotype.test<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='+')
-culture.test<-buildSleuthModel(fulldf,inc='Genotype',test='Culture',alt='primary')
+genotype.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='--')
+culture.mod<-buildSleuthModel(fulldf,inc=c('Genotype'),test='Culture',alt='primary')
+oneallele.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='OneAllele',alt='+')
 
 
-
-plotGenesInSamples<-function(obj,transcripts,units="tpm", genes=NULL,annotes=NULL,fname='selectedGenesInData.png'){
-  tabd_df <- obj$obs_norm[obj$obs_norm$target_id %in% transcripts,]
-  ##select unit to plo
-  if (units == "tpm") {
-    tabd_df <- dplyr::select(tabd_df, target_id, sample,
-                             tpm)
-    tabd_df <- reshape2::dcast(tabd_df, target_id ~ sample,
-                               value.var = "tpm")
-  }
-  else if (units == "est_counts") {
-    tabd_df <- dplyr::select(tabd_df, target_id, sample,
-                             est_counts)
-    tabd_df <- reshape2::dcast(tabd_df, target_id ~ sample,
-                               value.var = "est_counts")
-  }
-  else {
-    stop("Didn't recognize the following unit: ", units)
-  }
-
-  dm=design_matrix(obj)
-  genotype=rep("++",nrow(dm))
-  names(genotype)<-rownames(dm)
-  genotype[which(dm[,'Genotype+-']==1)]<-'+-'
-  genotype[which(dm[,'Genotype--']==1)]<-'--'
+##now for each model, we need to
+#1-create ranked list of genes
+#2-do Volcano plotso
+#3-do PCA
+#4-do Heatmap of diff ex genes
+##
 
 
-  if(is.null(genes))
-    genes=transcripts
-  rownames(tabd_df) <- genes[tabd_df[,1]]
-  names(annotes)<-genes[tabd_df[,1]]
-  require(pheatmap)
-  if(is.null(annotes))
-    pheatmap(t(log2(tabd_df[,-1]+0.01)),cellheight=10,cellwidth=10,annotation_row=data.frame(Genotype=genotype),clustering_distance_rows='correlation',clustering_distance_cols='correlation',filename=fname)
-  else
-    pheatmap(t(log2(tabd_df[,-1]+0.01)),cellheight=10,cellwidth=10,annotation_row=data.frame(Genotype=genotype),clustering_distance_rows='correlation',clustering_distance_cols='correlation',annotation_col=data.frame(Type=annotes),filename=fname)
+doAnalysis<-function(model, test,alt){
+    fname=paste(test,'variable',alt,'test',sep='_')
+    ##1
+    tab<-getSleuthTable(model,test,alt)
+                                        #store table
+    write.table(tab,file=paste(fname,'SleuthResults.csv',sep=''),sep=',',quote=F)
+    sigs<-which(as.numeric(tab[,'qval'])<0.1)
+
+    pc=sigs[grep('protein_coding',tab[sigs,'target_id'])]
+
+    pcg=unique(tab[pc,'gene'])
+    print(paste("Found",length(sigs),'differentially expressed transcripts, of which',length(pc),'are protein coding representing',length(pcg),'unique genes'))
+
+    pdf(paste(fname,'VolcanoPlot.pdf',sep=''))
+    plot_volcano(model,paste(test,alt,sep=''),point_alpha=0.8)
+    dev.off()
+
+    pdf(paste(fname,'PCAPlot.pdf',sep=''))
+    plot_pca(model,text_labels=TRUE,color_by=test,point_size=8)
+    dev.off()
+
+    gvals=tab[,'gene']
+    names(gvals)<-tab[,'target_id']
+    plotGenesInSamples(model,tab[pcg,'target_id'],units="tpm",
+                       genes=gvals,annotes=NULL,collapseByGene=TRUE,
+                       fname=paste(fname,'sigGenesInHeatmap.pdf'),test=test,alt=alt)
+
 
 }
+
+
 
 plotVals<-function(data.obj,qval){
   res=sleuth_results(data.obj, 'Genotype--')
@@ -65,7 +67,3 @@ plotVals<-function(data.obj,qval){
 
 
 }
-
-plotVals(fp,0.05)
-plotVals(fp,0.01)
-plotVals(fp,0.1)
