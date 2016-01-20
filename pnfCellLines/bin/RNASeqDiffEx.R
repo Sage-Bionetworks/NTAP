@@ -62,7 +62,7 @@ buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele',alt='+'){
   ffit<-sleuth_fit(sf)
 
   ##now ask question
-  fp <- sleuth_wt(ffit, paste(test,alt),sep=''))
+  fp <- sleuth_wt(ffit, paste(test,alt,sep=''))
 
   return(fp)
 }
