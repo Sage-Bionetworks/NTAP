@@ -16,6 +16,24 @@ if(!exists("segdata2"))
     segdata2 <- tier1_segmentedData(TRUE)
 
 
+idDiffVals<-function(segdat,byval='gene',metric='median',thresh=-0.5){
+  cnseg <- CNSeg(segdat)
+  rdseg <- getRS(cnseg, by = byval,geneMap=geneInfo, imput = FALSE, XY = FALSE, what =metric)
+  segM <- rs(rdseg)
+  nzvals<-which(apply(segM,1,function(x) any(as.numeric(x[-c(1:5)])<thresh)))
+  nzM<-segM[nzvals,]
+  print(paste('found',length(nzvals),byval,'values with logR values less than',thresh))
+   
+  vals_by_gene=as.data.frame(dlply(nzM,'genename',function(x) colSums(x[,-c(1:5)])))
+ 
+  ##genes by chromosome
+  res=nzM %>% group_by(chrom) %>% summarise(genes=n_distinct(genename))
+  
+  ##heatmaps by chromosome
+  nm=apply(vals_by_gene,2,as.numeric)
+  rownames(nm)<-rownames(vals_by_gene)
+}
+
 
 ####Plot clusters - assumes we're in analysis directory!!
 if(!exists("geneInfo"))

@@ -125,7 +125,7 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm",
         names(oa)<-rownames(dm)
         oa[which(dm[,'OneAllele+'])==1]<-'+'
         adf=data.frame(OneNF1=oa,Culture=cul)
-  }else if(test=='Genotype'){
+  }else if(test%in%c('Genotype','Culture'){
 
       genotype=rep("++",nrow(dm))
       names(genotype)<-rownames(dm)
