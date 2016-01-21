@@ -159,6 +159,26 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm",
 
 }
 
+
+plotSingleGene<-function(obj,gene,prefix=''){
+    library(ggplot2)
+    jm <-obj$obs_norm
+    jm$gene = obj$target_mapping$gene[match(jm$target_id,obj$target_mapping$target_id)]
+
+
+    tabd_df <- jm[which(jm$gene==gene),]
+
+    tsum=daply(tabd_df,'sample', function(td){sum(td$tpm)})
+    newdf<-data.frame(TPM=tsum,Sample=names(tsum)) newdf$Genotype<-obj$sample_to_covariates$Genotype[match(names(tsum),obj$sample_to_covariates$sample)]
+    newdf$Culture<-obj$sample_to_covariates$Culture[match(names(tsum),obj$sample_to_covariates$sample)]
+    newdf$Origin<-obj$sample_to_covariates$Origin[match(names(tsum),obj$sample_to_covariates$sample)]
+
+    pdf(paste(prefix,gene,'expression.pdf',sep=''))
+    p=ggplot(newdf)+geom_bar(aes(Origin,TPM,fill=Culture),stat='identity',position='dodge')
+    print(p)
+    dev.off()
+}
+
 plotVals<-function(data.obj,qval,ttype=c(),prefix='',test='OneAllele',alt='+'){
   res=sleuth_results(data.obj, paste(test,alt,sep=''))
   sel=which(res$qval<qval)

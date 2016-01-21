@@ -4,18 +4,6 @@ source("../../bin/RNASeqDiffEx.R")
 
 fulldf<-buildDiffExDf()
 
-genotype.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='--')
-culture.mod<-buildSleuthModel(fulldf,inc=c('Genotype'),test='Culture',alt='primary')
-oneallele.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='OneAllele',alt='+')
-
-
-##now for each model, we need to
-#1-create ranked list of genes
-#2-do Volcano plotso
-#3-do PCA
-#4-do Heatmap of diff ex genes
-##
-
 
 doAnalysis<-function(model, test,alt){
     fname=paste(test,'variable',alt,'test',sep='_')
@@ -42,28 +30,25 @@ doAnalysis<-function(model, test,alt){
     names(gvals)<-tab[,'target_id']
     plotGenesInSamples(model,tab[pc,'target_id'],units="tpm",
                        genes=NULL,annotes=NULL,collapseByGene=TRUE,
-                       fname=paste(fname,'sigGenesInHeatmap.pdf'),test=test,alt=alt)
+                       fname=paste(fname,'sigGenesByTpmInHeatmap.pdf'),test=test,alt=alt)
 
 
 }
 
 
 
-plotVals<-function(data.obj,qval){
-  res=sleuth_results(data.obj, 'Genotype--')
-  sel=which(res.tab.nohet$qval<qval)
-  print(paste("Found",length(sel),'diff ex genes at q=',qval))
-  targs=as.character(res.tab.nohet$target_id[sel])
-  trans.type=sapply(as.character(targs),function(x) {
-    arr=unlist(strsplit(x,split='|',fixed=T))
-    arr[length(arr)]
-  })
-  gene=res$gene[sel]
-  trans=res$transcript[sel]
-  tnames=paste(genes,trans,sep='_')
-  names(tnames)<-targs
-  names(trans.type)<-tnames
-  plotGenesInSamples(data.obj,targs,'tpm',tnames,trans.type,fname=paste('diffexGenesq',qval,'.png',sep=''))
+genotype.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='--')
+culture.mod<-buildSleuthModel(fulldf,inc=c('Genotype'),test='Culture',alt='primary')
+oneallele.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='OneAllele',alt='+')
 
 
-}
+##now for each model, we need to
+#1-create ranked list of genes
+#2-do Volcano plotso
+#3-do PCA
+#4-do Heatmap of diff ex genes
+##
+
+doAnalysis(genotype.mod,'Genotype','--')
+doAnalysis(culture.mod,'Culture','primary')
+doAnalysis(oneallele.mod,'OneAllele','+')
