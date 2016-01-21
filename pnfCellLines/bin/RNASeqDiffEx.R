@@ -169,7 +169,8 @@ plotSingleGene<-function(obj,gene,prefix=''){
     tabd_df <- jm[which(jm$gene==gene),]
 
     tsum=daply(tabd_df,'sample', function(td){sum(td$tpm)})
-    newdf<-data.frame(TPM=tsum,Sample=names(tsum)) newdf$Genotype<-obj$sample_to_covariates$Genotype[match(names(tsum),obj$sample_to_covariates$sample)]
+    newdf<-data.frame(TPM=tsum,Sample=names(tsum))
+    newdf$Genotype<-obj$sample_to_covariates$Genotype[match(names(tsum),obj$sample_to_covariates$sample)]
     newdf$Culture<-obj$sample_to_covariates$Culture[match(names(tsum),obj$sample_to_covariates$sample)]
     newdf$Origin<-obj$sample_to_covariates$Origin[match(names(tsum),obj$sample_to_covariates$sample)]
 

@@ -52,3 +52,4 @@ oneallele.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='OneAllele',alt='+'
 doAnalysis(genotype.mod,'Genotype','--')
 doAnalysis(culture.mod,'Culture','primary')
 doAnalysis(oneallele.mod,'OneAllele','+')
+plotSingleGene(genotype.mod,'NF1','tpmValuesFromGenotypeModel.pdf')
