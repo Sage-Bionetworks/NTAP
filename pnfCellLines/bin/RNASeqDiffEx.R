@@ -47,7 +47,7 @@ buildGencodeTargetMap<-function(df){
 }
 
 ##now we need to build the sleuth object
-buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele',alt='+'){
+buildSleuthModel<-function(df,inc=c('Sex','Culture'),test='OneAllele',alt='+',prefix=''){
 
   t2g2<-read.table('../../data/gencodeGeneTranscriptMap.csv',sep=',',header=T)
   ##first build sleuth object
@@ -118,21 +118,26 @@ plotGenesInSamples<-function(obj,transcripts,units="tpm",
   dm=design_matrix(obj)
   cul=rep('Immortalized',nrow(dm))
   names(cul)<-rownames(dm)
-  cul[which(dm[,'Cultureprimary']==1)]<-'Primary'
+  if('Cultureprimary'%in%colnames(dm))
+    cul[which(dm[,'Cultureprimary']==1)]<-'Primary'
+  else
+    cul=NULL
 
   if(test=='OneAllele'){
         oa=rep("-",nrow(dm))
         names(oa)<-rownames(dm)
         oa[which(dm[,'OneAllele+']==1)]<-'+'
-        adf=data.frame(OneNF1=oa,Culture=cul)
+        adf=data.frame(OneNF1=oa)
   }else if(test%in%c('Genotype','Culture')){
 
       genotype=rep("++",nrow(dm))
       names(genotype)<-rownames(dm)
       genotype[which(dm[,'Genotype+-']==1)]<-'+-'
       genotype[which(dm[,'Genotype--']==1)]<-'--'
-      adf=data.frame(Genotype=genotype,Culture=cul)
+      adf=data.frame(Genotype=genotype)
   }
+  if(!is.null(cul))
+    adf$Culture=cul
 
 
 
@@ -206,4 +211,37 @@ plotVals<-function(data.obj,qval,ttype=c(),prefix='',test='OneAllele',alt='+'){
   plotGenesInSamples(data.obj,targs,'tpm',tnames,trans.type[sel],fname=paste(prefix,'diffex',paste(ttype,collapse='_'),'TranscriptsQ',qval,'.png',sep=''))
 
 
+}
+
+#general analysis
+makeTablesAndPlots<-function(model, test,alt,prefix=''){
+  fname=paste(test,'variable',alt,'test',prefix,sep='_')
+  ##1
+  tab<-getSleuthTable(model,test,alt)
+  #store table
+  write.table(tab,file=paste(fname,'SleuthResults.csv',sep=''),sep=',',quote=F)
+  sigs<-which(as.numeric(tab[,'qval'])<0.1)
+  
+  pc=sigs[grep('protein_coding',tab[sigs,'target_id'])]
+  
+  pcg=unique(tab[pc,'gene'])
+  print(paste("Found",length(sigs),'differentially expressed transcripts, of which',length(pc),'are protein coding representing',length(pcg),'unique genes'))
+  
+  pdf(paste(fname,'VolcanoPlot.pdf',sep=''))
+  res=plot_volcano(model,paste(test,alt,sep=''),point_alpha=0.8)
+  print(res)
+  dev.off()
+  
+  pdf(paste(fname,'PCAPlot.pdf',sep=''))
+  res=plot_pca(model,text_labels=TRUE,color_by=test,point_size=8)
+  print(res)
+  dev.off()
+  
+  gvals=tab[,'gene']
+  names(gvals)<-tab[,'target_id']
+  plotGenesInSamples(model,tab[pc,'target_id'],units="tpm",
+                     genes=NULL,annotes=NULL,collapseByGene=TRUE,
+                     fname=paste(fname,'sigGenesByTpmInHeatmap.pdf'),test=test,alt=alt)
+  
+  
 }

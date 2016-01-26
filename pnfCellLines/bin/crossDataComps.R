@@ -7,11 +7,14 @@ source('../../bin/RNASeqData.R')
 library(ggplot2)
 
 ##first compare drug sensitivity data with RNA/CNV
-drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCounts=FALSE,proteinCoding=FALSE){
+drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCounts=FALSE,proteinCoding=FALSE,qthresh=0.1,pthresh=0.001){
   if(useGencode)
     rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
   else
     rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
+  
+  ##get genotype
+  gt.cell<-synTableQuery('SELECT "Sample Name","Sample Genotype" FROM syn5014742')@values
   
 
   drugMat<-getValueForAllCells(valname)
@@ -53,11 +56,13 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCoun
   
   p.corrected<-apply(all.cor.ps,2,p.adjust)
   
-  sigs=which(p.corrected<0.1,arr.ind=T)
-  if(nrow(sigs)==0)
-    sigs=which(all.cor.ps<0.01,arr.ind=T)
-  
-  if(nrow(sigs)==0)
+  sigs=which(p.corrected<qthresh,arr.ind=T)
+  uncorrected=FALSE
+  if(nrow(sigs)==0){
+    uncorrected=TRUE
+    sigs=which(all.cor.ps<pthresh,arr.ind=T)
+}
+      if(nrow(sigs)==0)
     return(NULL)
   
   ##now can we plot those values? 
@@ -67,9 +72,11 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCoun
   exp<-c()
   drugname<-c()
   trans<-c()
+  gt=c()
   for(i in 1:nrow(sigs)){
     r=sigs[i,]
     drug<-c(drug,drugMat[r[1],cells])
+    gt=c(gt,gt.cell[match(cells,gt.cell[,1]),2])
     drugname=c(drugname,rep(rownames(drugMat)[r[1]],length(cells)))
     exp=c(exp,unlist(nf1Mat[r[2],cells]))
     tname=rownames(nf1Mat)[r[2]]
@@ -77,11 +84,11 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCoun
       tname=gene
     trans=c(trans,rep(tname,length(cells)))
   }
-  df=data.frame(DrugVals=drug,RNAExpr=exp,DrugName=drugname,Transcript=trans)
+  df=data.frame(DrugVals=drug,RNAExpr=exp,DrugName=drugname,Transcript=trans,Genotype=gt)
   #names(df)[1]=paste('Drug',valname,'Value',sep='')
   png(paste(valname,'CorrelatedWith',ifelse(proteinCoding,'protCoding',''),gene,ifelse(collapseAllCounts,'byGene','byTrans'),ifelse(doLog,'log2',''),'expression.png',sep=''))
-  p<-ggplot(df,aes(x=RNAExpr,y=DrugVals))+geom_point(aes(colour=DrugName,shape=Transcript))+geom_line(aes(colour=DrugName,shape=Transcript))
-  p<-p+ggtitle(paste(gene,'Expression for',valname,'\nvalues, corrected p<0.1'))
+  p<-ggplot(df,aes(x=RNAExpr,y=DrugVals))+geom_point(aes(colour=DrugName,shape=Genotype),size=6,alpha=0.8)+geom_line(aes(colour=DrugName,linetype=Transcript))
+  p<-p+ggtitle(paste(gene,'Expression for',valname,'\nvalues,',ifelse(uncorrected,paste('p<',pthresh),paste('q',qthresh))))
   print(p)
   dev.off()
 }
