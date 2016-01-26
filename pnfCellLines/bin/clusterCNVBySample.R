@@ -15,6 +15,54 @@ if(!exists("segdata"))
 if(!exists("segdata2"))
     segdata2 <- tier1_segmentedData(TRUE)
 
+ann.vals<-synTableQuery('SELECT "Sample Name","Sample ID","Sample Genotype" FROM syn5014742')@values
+
+idDiffVals<-function(segdat,byval='gene',metric='median',thresh=-.5,byChrom=FALSE){
+  require(dplyr)
+  cnseg <- CNSeg(segdat)
+  rdseg <- getRS(cnseg, by = byval,geneMap=geneInfo, imput = FALSE, XY = FALSE, what =metric)
+  segM <- rs(rdseg)
+  nzvals<-which(apply(segM,1,function(x) any(as.numeric(x[-c(1:5)])<thresh)))
+  nzM<-segM[nzvals,]
+  print(paste('found',length(nzvals),byval,'values with logR values less than',thresh))
+   
+  vals_by_gene=as.data.frame(dlply(nzM,'genename',function(x) apply(x[,-c(1:5)],2,median)))
+  ##lets get annotations
+  gts=ann.vals[match(rownames(vals_by_gene),ann.vals[,2]),3]
+  rownames(vals_by_gene)<-ann.vals[match(rownames(vals_by_gene),ann.vals[,2]),1]
+  names(gts)<-rownames(vals_by_gene)
+  
+  nongenes=c(grep("RNA",colnames(vals_by_gene)),grep("MIR",colnames(vals_by_gene)),
+             grep("SNO",colnames(vals_by_gene)),grep("HV",colnames(vals_by_gene)),
+             grep("C[0-9]+orf",colnames(vals_by_gene)),grep("BC0",colnames(vals_by_gene)),
+             grep("LOC[0-9]+",colnames(vals_by_gene)))
+  if(length(nongenes)>0)
+    vals_by_gene=vals_by_gene[,-nongenes]
+  print(paste(ncol(vals_by_gene),'unique gene-specific values'))
+  ##genes by chromosome
+  res=nzM %>% group_by(chrom) %>% summarise(genes=n_distinct(genename))
+
+  ##heatmaps by chromosome
+  nm=apply(vals_by_gene,2,as.numeric)
+  rownames(nm)<-rownames(vals_by_gene)
+  chroms=nzM$chrom
+  names(chroms)<-nzM$genename
+  chroms=chroms[unique(names(chroms))]
+  nm=t(nm)[order(chroms[colnames(nm)]),]
+  if(byChrom){
+    sapply(chroms,function(y){
+      gvals=intersect(names(chroms)[which(chroms==y)],rownames(nm))
+      pheatmap(nm[gvals,],cellheight=10,cellwidth=10,cluster_rows=TRUE,
+               annotation_col=data.frame(Genotype=gts),annotation_row=data.frame(Chromosome=chroms),
+               file=paste(metric,byval,'valuesLessThan',thresh,'OnChrom',y,'.png',sep=''))
+    })
+  }else{
+    pheatmap(nm,cellheight=10,cellwidth=10,cluster_rows=FALSE,
+             annotation_col=data.frame(Genotype=gts),annotation_row=data.frame(Chromosome=chroms),
+             file=paste(metric,byval,'valuesLessThan',thresh,'.png',sep=''))
+    }
+  return(nm)
+}
 
 
 ####Plot clusters - assumes we're in analysis directory!!
