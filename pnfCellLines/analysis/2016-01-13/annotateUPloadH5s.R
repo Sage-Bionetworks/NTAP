@@ -8,7 +8,7 @@
 require(synapseClient)
 library(data.table)
 synapseLogin()
-belltown.dir='../2016-01-13/'
+belltown.dir='../2016-01-12/'
 filedirs=list.files(belltown.dir)
 fqc=c(grep('fastqc',filedirs),grep('.out',filedirs))
 if(length(fqc)>0)
