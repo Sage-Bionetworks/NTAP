@@ -29,6 +29,7 @@ tpms<-sapply(alldat,function(x){
   tpm
 })
 
+source("../../bin/RNASeqData.R")
 ##get our cell line data
 tpm.mat<-rnaGencodeKallistoMatrix(buildFromFiles=FALSE,useCellNames=TRUE)
 #get enst values

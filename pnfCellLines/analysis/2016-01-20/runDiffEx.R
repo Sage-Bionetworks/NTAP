@@ -19,11 +19,13 @@ doAnalysis<-function(model, test,alt){
     print(paste("Found",length(sigs),'differentially expressed transcripts, of which',length(pc),'are protein coding representing',length(pcg),'unique genes'))
 
     pdf(paste(fname,'VolcanoPlot.pdf',sep=''))
-    plot_volcano(model,paste(test,alt,sep=''),point_alpha=0.8)
+    p<-plot_volcano(model,paste(test,alt,sep=''),point_alpha=0.8)
+    print(p)
     dev.off()
 
     pdf(paste(fname,'PCAPlot.pdf',sep=''))
-    plot_pca(model,text_labels=TRUE,color_by=test,point_size=8)
+    p<-plot_pca(model,text_labels=TRUE,color_by=test,point_size=8)
+    print(p)
     dev.off()
 
     gvals=tab[,'gene']
@@ -37,9 +39,9 @@ doAnalysis<-function(model, test,alt){
 
 
 
-genotype.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='--')
-culture.mod<-buildSleuthModel(fulldf,inc=c('Genotype'),test='Culture',alt='primary')
-oneallele.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='OneAllele',alt='+')
+#genotype.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='Genotype',alt='--')
+#culture.mod<-buildSleuthModel(fulldf,inc=c('Genotype'),test='Culture',alt='primary')
+#oneallele.mod<-buildSleuthModel(fulldf,inc=c('Culture'),test='OneAllele',alt='+')
 
 
 ##now for each model, we need to

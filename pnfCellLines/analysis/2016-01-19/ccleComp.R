@@ -59,22 +59,22 @@ doCorPlots<-function(df,prefix=''){
   require(pheatmap)
     #first compute correlation
   tcor=cor(df)
-  pheatmap(tcor,main=paste(prefix,'Pearson Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'pearsonCors.png',sep='_'))
+  pheatmap(tcor,main=paste(prefix,'Pearson Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'pearsonCors.pdf',sep='_'))
   
   #second: spearman
   tcor=cor(df,method='spearman')
-  pheatmap(tcor,main=paste(prefix,'Spearman Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'spearmanCors.png',sep='_'))
+  pheatmap(tcor,main=paste(prefix,'Spearman Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'spearmanCors.pdf',sep='_'))
   
   #third: quanile normalization
   
   tcor=cor(df,method='spearman')
-  pheatmap(tcor,main=paste(prefix,'Spearman Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'spearmanCors.png',sep='_'))
+  pheatmap(tcor,main=paste(prefix,'Spearman Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'spearmanCors.pdf',sep='_'))
   
   require(preprocessCore)
   qnormed=normalize.quantiles(as.matrix(df))
   colnames(qnormed)<-colnames(df)
   tcor=cor(qnormed)
-  pheatmap(tcor,main=paste(prefix,'Q-normed Pearson Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'qnormPearsonCor.png',sep='_'))
+  pheatmap(tcor,main=paste(prefix,'Q-normed Pearson Correlation'),cellheight=10,cellwidth=10,filename=paste(prefix,'qnormPearsonCor.pdf',sep='_'))
 }
 
 
