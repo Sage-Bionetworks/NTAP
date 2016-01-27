@@ -108,9 +108,19 @@ library(ggplot2)
 doseResponseCurve<-function(cell,drug){
   cell.resp=allfiles[[cell]]
   drug.dat<-cell.resp[match(drug,cell.resp$name),]
+  ##actual points
   dvals<-unlist(drug.dat[grep('DATA[0-9+]',names(drug.dat))])
   cvals<-unlist(drug.dat[grep('^C[0-9+]',names(drug.dat))])
-  df<-data.frame(Response=dvals,Concentration=cvals)
-  r<-ggplot(df,aes(x=Concentration,y=Response))+geom_line()+scale_x_log10()
-  print(r)
+  #drug.dat<-data.frame(substance=rep(drug,length(dvals)),dose=dvals,response=cvals,unit=rep("uM",length(dvals)))
+#  fitvals=sapply(cvals,function(x) drug.dat$ZERO+((drug.dat$INF-drug.dat$ZERO)/(1+(log10(x)/drug.dat$LAC50))^(1*drug.dat$HILL)))
+  ##try to fit new model
+  require(nplr)
+  fit=nplr(cvals,dvals/max(dvals),useLog=TRUE)
+  pdf(paste(drug,'doseResponseCurveIn',cell,'.pdf',sep=''))
+  plot(fit)
+  dev.off()
+   ##curve parameters
+#df<-data.frame(Response=dvals,Concentration=log10(cvals),Model=2*fitvals)
+#  r<-ggplot(df)+geom_line(aes(x=Concentration,y=Model))+geom_point(aes(x=Concentration,y=Response))+scale_x_log10()
+#  print(r)
 }
