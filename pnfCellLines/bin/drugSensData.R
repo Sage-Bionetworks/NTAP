@@ -34,7 +34,7 @@ allfiles<-lapply(dfiles$entity.id,function(x) {
 
 names(allfiles)<-dfiles$entity.sampleName
 
-valsOfInterest<<-c(names(allfiles[[1]])[4:13],'CurveClass')
+valsOfInterest<<-c(names(allfiles[[1]])[4:13],c('target','CurveClass'))
 
 ##now for each drug, collect a value and put into data frame
 getValueForAllCells<-function(valname){
@@ -119,8 +119,5 @@ doseResponseCurve<-function(cell,drug){
   pdf(paste(drug,'doseResponseCurveIn',cell,'.pdf',sep=''))
   plot(fit)
   dev.off()
-   ##curve parameters
-#df<-data.frame(Response=dvals,Concentration=log10(cvals),Model=2*fitvals)
-#  r<-ggplot(df)+geom_line(aes(x=Concentration,y=Model))+geom_point(aes(x=Concentration,y=Response))+scale_x_log10()
-#  print(r)
+
 }
