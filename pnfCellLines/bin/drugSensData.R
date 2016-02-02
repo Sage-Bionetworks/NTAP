@@ -82,6 +82,27 @@ plotOneCell<-function(cellname,as.categ=FALSE,use.disc=FALSE){
   dev.off()
 }
 
+##cluster drugs by response across cell lines
+clusterDrugsByResponse<-function(metric='FAUC',h=4){
+  #get fauc
+  fauc=getValueForAllCells(metric)
+  #now zscore them
+  zsfauc<-apply(fauc,2,function(x) (x-mean(x,na.rm=T))/sd(x,na.rm=T))
+  nz.zs.fauc=zsfauc
+  #reset NA values
+  nz.zs.fauc[which(is.na(nz.zs.fauc),arr.ind=T)]<-0.0
+  #pheatmap(nz.zs.fauc,cellheight=10,cellwidth=10,file='Zscore_FAUC_for_all_cells.pdf')
+  
+  ##there is a pretty blue cluster there, can we do any enrichment? 
+  drug.dists<-dist(nz.zs.fauc)
+  hc=hclust(drug.dists)
+  
+  ##now cut the clustering'
+  drug.clusters<-sapply(unique(cutree(hc,h=h)),function(x) names(which(cutree(hc,h=h)==x)))
+ # hist(sapply(drug.clusters,length))
+  return(drug.clusters)
+}
+
 plotMostVariableVals<-function(valname,ft='png'){
     drug.values<-getValueForAllCells(valname)
     

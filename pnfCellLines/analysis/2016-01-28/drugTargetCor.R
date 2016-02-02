@@ -28,7 +28,8 @@ computeDrugTargCorrelation<-function(valname='MAXR',doLog=T,qthresh=0.1,pthresh=
     list(DrugsThatTarget=length(dts),DrugsThatCorrelate=length(dcors),overlap=length(over))
   })
   ##now write out table
-  fname=paste('target',ifelse(doLog,'log2',''),'expressionVs',valname,'.csv',sep=',',header=T,row.names=F)
+  fname=paste('target',ifelse(doLog,'log2',''),'expressionVs',valname,'.csv',sep=',')
+  write.table(over.res,fname,sep=',',row.names=F)
   return(over.res)
   
 }

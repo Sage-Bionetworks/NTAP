@@ -7,7 +7,9 @@ source('../../bin/RNASeqData.R')
 library(ggplot2)
 
 ##first compare drug sensitivity data with RNA/CNV
-drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCounts=FALSE,proteinCoding=FALSE,qthresh=0.1,pthresh=0.001,doPlot=T){
+drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
+                  collapseAllCounts=FALSE,proteinCoding=FALSE,qthresh=0.1,
+                  pthresh=0.001,doPlot=T){
   if(useGencode)
     rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
   else
@@ -43,18 +45,24 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,collapseAllCoun
     nf1Mat<-t(colSums(nf1Mat))
     
   }
+  
+  if(nrow(nf1Mat)==0)
+    return(NULL)
   if(doLog)
     nf1Mat=log2(nf1Mat+0.01)
   all.cors=apply(nf1Mat,1,function(x){
     apply(drugMat,1,function(y)
       cor(x,y,use='pairwise.complete.obs'))})
+  
+  require(psych)
+  all.cor.ps=1-pnorm(fisherz(all.cors))
   ##all p-values, since sample size is so darn low
-  all.cor.ps=apply(nf1Mat,1,function(x){
-    apply(drugMat,1,function(y)
-      cor.test(x,y,use='pairwise.complete.obs')$p.value)})
+  #all.cor.ps=apply(nf1Mat,1,function(x){
+  #  apply(drugMat,1,function(y)
+  #    cor.test(x,y,use='pairwise.complete.obs')$p.value)})
   
-  p.corrected<-apply(all.cor.ps,2,p.adjust)
-  
+  p.corrected<-apply(all.cor.ps,2,p.adjust,method='fdr')
+ # names(p.corrected)<-names(all.cor.ps)
   sigs=which(p.corrected<qthresh,arr.ind=T)
   uncorrected=FALSE
   if(nrow(sigs)==0 && !is.na(pthresh)){
