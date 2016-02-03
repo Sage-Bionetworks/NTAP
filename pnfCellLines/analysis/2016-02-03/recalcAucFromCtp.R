@@ -9,9 +9,9 @@ cpd_dat=read.table(cpd_data,sep='\t',header=T,quote='"')
 
 require(dplyr)
 require(nplr)
-res.auc=cpd_dat %>%
+res.auc=auc_dat %>%
   group_by(experiment_id,master_cpd_id) %>%
-    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[1])
+    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[[1]])
   
 ##now we can re-merge as we did previously.      
            
