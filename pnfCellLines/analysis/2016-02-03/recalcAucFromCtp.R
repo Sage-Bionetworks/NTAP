@@ -7,11 +7,18 @@ auc_dat=read.table(auc_data,sep='\t',header=T,quote='"')
 cpd_data<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.data.per_cpd_well.txt'
 cpd_dat=read.table(cpd_data,sep='\t',header=T,quote='"')
 
-require(dplyr)
+require(plyr)
 require(nplr)
-res.auc=auc_dat %>%
-  group_by(experiment_id,master_cpd_id) %>%
-    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[[1]])
+res.auc=dlply(min_dat,c("experiment_id","master_cpd_id"),function(dat){
+    res=NA
+    try(res<-nplr(x=dat$cpd_conc_umol,y=2^dat$bsub_value_log2/max(2^dat$bsub_value_log2))@AUC[[1]])
+    return(AUC=res)
+})
+
+res.auc=data.frame(attr(res.auc,'split_labels'),unlist(res.auc))
+#res.auc=min_dat %>%
+#  group_by(experiment_id,master_cpd_id) %>%
+#    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[[1]])
   
 ##now we can re-merge as we did previously.      
            
