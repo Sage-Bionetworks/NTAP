@@ -44,7 +44,7 @@ getValueForAllCells<-function(valname){
   }else{
     print(paste('Computing',valname,'for all cells'))
   }
-  
+
   #get all drugs
   #ssalldrugs<-unique(allfiles[[1]]$name)
   drug.values<-sapply(dfiles$entity.sampleName,function(x){
@@ -54,8 +54,7 @@ getValueForAllCells<-function(valname){
       drugs<-allfiles[[x]]$name
       names(vals)<-drugs
       vals
-  })
-  return(drug.values)
+  })  return(drug.values)
 }
 
 plotOneCell<-function(cellname,as.categ=FALSE,use.disc=FALSE){
@@ -75,7 +74,7 @@ plotOneCell<-function(cellname,as.categ=FALSE,use.disc=FALSE){
   }else if(use.disc){
     cl=as.factor(td$CurveClass[-zv])
   }
- require(ggbiplot) 
+ require(ggbiplot)
   p<-ggbiplot(pc,groups=cl)+ggtitle(paste('Drug response panel for',cellname))
   print(p)
   dev.off()
@@ -91,11 +90,11 @@ clusterDrugsByResponse<-function(metric='FAUC',h=4){
   #reset NA values
   nz.zs.fauc[which(is.na(nz.zs.fauc),arr.ind=T)]<-0.0
   #pheatmap(nz.zs.fauc,cellheight=10,cellwidth=10,file='Zscore_FAUC_for_all_cells.pdf')
-  
-  ##there is a pretty blue cluster there, can we do any enrichment? 
+
+  ##there is a pretty blue cluster there, can we do any enrichment?
   drug.dists<-dist(nz.zs.fauc)
   hc=hclust(drug.dists)
-  
+
   ##now cut the clustering'
   drug.clusters<-sapply(unique(cutree(hc,h=h)),function(x) names(which(cutree(hc,h=h)==x)))
  # hist(sapply(drug.clusters,length))
@@ -104,7 +103,7 @@ clusterDrugsByResponse<-function(metric='FAUC',h=4){
 
 plotMostVariableVals<-function(valname,ft='png'){
     drug.values<-getValueForAllCells(valname)
-    
+
     #navals<-which(apply(drug.values,1,function(x) any(is.na(x))))
     #ddv<-drug.values[-navals,]
     if(valname=='CurveClass'){
@@ -120,24 +119,47 @@ plotMostVariableVals<-function(valname,ft='png'){
     gt<-dfiles$entity.sampleGenotype
     names(gt)<-dfiles$entity.sampleName
     pheatmap(t(mv),annotation_row=data.frame(Genotype=gt),cellwidth=10,cellheight=10,file=paste('drugsWithMostVariable',valname,'AcrossCellLines.',ft,sep=''))
-  return(drug.values)  
+  return(drug.values)
 }
 library(ggplot2)
 
 ##need to show dose response curves.
-doseResponseCurve<-function(cell,drug){
-  cell.resp=allfiles[[cell]]
-  drug.dat<-cell.resp[match(drug,cell.resp$name),]
-  ##actual points
-  dvals<-unlist(drug.dat[grep('DATA[0-9+]',names(drug.dat))])
-  cvals<-unlist(drug.dat[grep('^C[0-9+]',names(drug.dat))])
-  #drug.dat<-data.frame(substance=rep(drug,length(dvals)),dose=dvals,response=cvals,unit=rep("uM",length(dvals)))
-#  fitvals=sapply(cvals,function(x) drug.dat$ZERO+((drug.dat$INF-drug.dat$ZERO)/(1+(log10(x)/drug.dat$LAC50))^(1*drug.dat$HILL)))
+doseResponseCurve<-function(cell,drug=NA,doPlot=TRUE){
+    cell.resp=allfiles[[cell]]
+
+    if(is.na(drug)){
+        all.aucs=apply(cell.resp,1,function(drug.dat){
+            dvals<-unlist(drug.dat[grep('DATA[0-9+]',names(drug.dat))])
+
+            cvals<-unlist(drug.dat[grep('^C[0-9+]',names(drug.dat))])
+            fit<-NA
+            try{
+                fit=nplr(cvals,dvals/max(dvals),useLog=TRUE)@AUC
+            }
+
+            return(fit)
+        })
+        names(all.aucs)<-cell.resp$name
+    }
+    else{
+        drug.dat<-cell.resp[match(drug,cell.resp$name),]
+        ##actual points
+        dvals<-unlist(drug.dat[grep('DATA[0-9+]',names(drug.dat))])
+        cvals<-unlist(drug.dat[grep('^C[0-9+]',names(drug.dat))])
+                                        #drug.dat<-data.frame(substance=rep(drug,length(dvals)),dose=dvals,response=cvals,unit=rep("uM",length(dvals)))
+                                        #  fitvals=sapply(cvals,function(x) drug.dat$ZERO+((drug.dat$INF-drug.dat$ZERO)/(1+(log10(x)/drug.dat$LAC50))^(1*drug.dat$HILL)))
   ##try to fit new model
-  require(nplr)
-  fit=nplr(cvals,dvals/max(dvals),useLog=TRUE)
-  pdf(paste(drug,'doseResponseCurveIn',cell,'.pdf',sep=''))
-  plot(fit)
-  dev.off()
+        require(nplr)
+        fit=NA
+        try(fit<-nplr(cvals,dvals/max(dvals),useLog=TRUE)@AUC)
+        if(doPlot){
+            pdf(paste(drug,'doseResponseCurveIn',cell,'.pdf',sep=''))
+            plot(fit)
+            dev.off()
+        }
+        all.aucs=fit
+        names(all.aucs)<-drug
+    }
+  return(all.aucs)
 
 }
