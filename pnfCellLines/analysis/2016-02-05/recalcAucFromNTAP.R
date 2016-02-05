@@ -1,11 +1,6 @@
 ##compare to CTP dataa
+source('../../bin/drugSensData.R')
 
-auc_data<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.data.curves_post_qc.txt'
-auc_dat=read.table(auc_data,sep='\t',header=T,quote='"')
-
-##get original data points per well
-cpd_data<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.data.per_cpd_well.txt'
-cpd_dat=read.table(cpd_data,sep='\t',header=T,quote='"')
 
 require(plyr)
 require(nplr)
@@ -19,10 +14,10 @@ res.auc=data.frame(attr(res.auc,'split_labels'),unlist(res.auc))
 #res.auc=min_dat %>%
 #  group_by(experiment_id,master_cpd_id) %>%
 #    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[[1]])
-  
-##now we can re-merge as we did previously.      
-           
-##now we have to get cell line  data 
+
+##now we can re-merge as we did previously.
+
+##now we have to get cell line  data
 ccl_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_experiment.txt'
 ccl_dat=read.table(exp_data,header=T,sep='\t')
 ccl_metadata<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_cell_line.txt'
@@ -52,16 +47,16 @@ matched.drug.names=sapply(rownames(drugmat),function(x){
   mval=match(x,nt.drugs)
   if(!is.na(mval))
     return(mval)
-  
+
   y=paste('^',x,'$',sep='')
   mval=grep(y,nt.drugs,ignore.case=T)
   if(length(mval)==1)
     return(mval)
-  
+
   mval=grep(gsub('-','',x),nt.drugs,ignore.case=T)
   if(length(mval)==1)
     return(mval)
-  
+
   return(NULL)
 })
 
@@ -108,5 +103,3 @@ most.cor= union(colnames(ccors)[1:8],names(sort(apply(ccors[1:8,],2,median,na.rm
 pheatmap(comb.norm[,most.cor],cellheight=10,cellwidth=10,clustering_method='ward.D2',clustering_distance_rows='correlation',
          clustering_distance_cols='correlation',annotation_col=data.frame(PrimarySite=primsite),
          filename='top20CorrelatedAucZscores.png')
-
-
