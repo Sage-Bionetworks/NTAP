@@ -4,35 +4,9 @@ source('../../bin/drugSensData.R')
 
 require(plyr)
 require(nplr)
-res.auc=dlply(cpd_dat,c("experiment_id","master_cpd_id"),function(dat){
-    res=NA
-    try(res<-nplr(x=dat$cpd_conc_umol,y=2^dat$bsub_value_log2/max(2^dat$bsub_value_log2))@AUC[[1]])
-    return(AUC=res)
-})
 
-res.auc=data.frame(attr(res.auc,'split_labels'),unlist(res.auc))
-#res.auc=min_dat %>%
-#  group_by(experiment_id,master_cpd_id) %>%
-#    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[[1]])
 
-##now we can re-merge as we did previously.
-
-##now we have to get cell line  data
-ccl_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_experiment.txt'
-ccl_dat=read.table(exp_data,header=T,sep='\t')
-ccl_metadata<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_cell_line.txt'
-ccl_metadat<-read.table(ccl_metadata,sep='\t',header=T,as.is=T)
-##match experiment id to ccl_id
-
-##now we ahve to get drug data
-drug_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_compound.txt'
-drug_dat=read.table(drug_data,sep='\t',header=T,fill=T,quote='"')
-
-#now match it all up into a single matrix
-new.df<-data.frame(AUC=as.numeric(res.auc$aauc),
-                   Drug=drug_dat$cpd_name[match(res.auc$master_cpd_id,drug_dat$master_cpd_id)],
-                   CCL_id=ccl_dat$master_ccl_id[match(res.auc$experiment_id,ccl_dat$experiment_id)])
-new.df$CCL=ccl_metadat$ccl_name[match(new.df$CCL_id,ccl_metadat$master_ccl_id)]
+all.aucs=sapply(dfiles$entity.sampleName,function(x) doseReponseCurve(x,NA,FALSE)
 
 ##now try to reshape into matrix
 require(reshape2)
