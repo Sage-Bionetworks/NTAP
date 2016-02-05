@@ -19,12 +19,12 @@ res.auc=data.frame(attr(res.auc,'split_labels'),unlist(res.auc))
 #res.auc=min_dat %>%
 #  group_by(experiment_id,master_cpd_id) %>%
 #    summarise (auc=nplr(x=cpd_conc_umol,y=2^bsub_value_log2/max(2^bsub_value_log2))@AUC[[1]])
-
-##now we can re-merge as we did previously.
-write.table(res.auc,file='reCalculatedAUCs.txt',sep='\t',row.names=F)
-##now we have to get cell line  data
+  
+##now we can re-merge as we did previously.      
+           
+##now we have to get cell line  data 
 ccl_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_experiment.txt'
-ccl_dat=read.table(ccl_data,header=T,sep='\t')
+ccl_dat=read.table(exp_data,header=T,sep='\t')
 ccl_metadata<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_cell_line.txt'
 ccl_metadat<-read.table(ccl_metadata,sep='\t',header=T,as.is=T)
 ##match experiment id to ccl_id
@@ -34,7 +34,7 @@ drug_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_compound.txt
 drug_dat=read.table(drug_data,sep='\t',header=T,fill=T,quote='"')
 
 #now match it all up into a single matrix
-new.df<-data.frame(AUC=as.numeric(res.auc$unlist.res.auc),
+new.df<-data.frame(AUC=as.numeric(res.auc$aauc),
                    Drug=drug_dat$cpd_name[match(res.auc$master_cpd_id,drug_dat$master_cpd_id)],
                    CCL_id=ccl_dat$master_ccl_id[match(res.auc$experiment_id,ccl_dat$experiment_id)])
 new.df$CCL=ccl_metadat$ccl_name[match(new.df$CCL_id,ccl_metadat$master_ccl_id)]
@@ -52,16 +52,16 @@ matched.drug.names=sapply(rownames(drugmat),function(x){
   mval=match(x,nt.drugs)
   if(!is.na(mval))
     return(mval)
-
+  
   y=paste('^',x,'$',sep='')
   mval=grep(y,nt.drugs,ignore.case=T)
   if(length(mval)==1)
     return(mval)
-
+  
   mval=grep(gsub('-','',x),nt.drugs,ignore.case=T)
   if(length(mval)==1)
     return(mval)
-
+  
   return(NULL)
 })
 
@@ -108,3 +108,5 @@ most.cor= union(colnames(ccors)[1:8],names(sort(apply(ccors[1:8,],2,median,na.rm
 pheatmap(comb.norm[,most.cor],cellheight=10,cellwidth=10,clustering_method='ward.D2',clustering_distance_rows='correlation',
          clustering_distance_cols='correlation',annotation_col=data.frame(PrimarySite=primsite),
          filename='top20CorrelatedAucZscores.png')
+
+

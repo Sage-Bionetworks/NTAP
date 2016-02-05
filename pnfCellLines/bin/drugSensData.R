@@ -5,7 +5,6 @@
 ##
 library(synapseClient)
 library(data.table)
-library(ggbiplot)
 library(pheatmap)
 synapseLogin()
 fileparent='syn5522627'
@@ -76,7 +75,7 @@ plotOneCell<-function(cellname,as.categ=FALSE,use.disc=FALSE){
   }else if(use.disc){
     cl=as.factor(td$CurveClass[-zv])
   }
-  
+ require(ggbiplot) 
   p<-ggbiplot(pc,groups=cl)+ggtitle(paste('Drug response panel for',cellname))
   print(p)
   dev.off()
