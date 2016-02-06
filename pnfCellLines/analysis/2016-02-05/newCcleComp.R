@@ -25,10 +25,11 @@ gms=data.frame(Gene=pc.genes,Ens=sapply(as.character(map$target_id[match(pc.gene
 
 ccle.idx=match(gms[,2],rownames(ccle.tpm))
 
-tpm.genes<-sapply(pc.genes,function(x) colSums(prot_coding.tpm[grep(paste(x,'.ENST',sep=''),rownames(prot_coding.tpm)),]))
+tpm.genes<-t(sapply(pc.genes,function(x) colSums(prot_coding.tpm[grep(paste(x,'.ENST',sep=''),rownames(prot_coding.tpm)),])))
 
 ##create larger matrix
-all.tpms<-cbind(tpm.mat[which(!is.na(ccle.idx)),],ccle.tpm[ccle.idx[which(!is.na(ccle.idx))],])
+all.tpms<-cbind(tpm.genes[which(!is.na(ccle.idx)),],ccle.tpm[ccle.idx[which(!is.na(ccle.idx))],])
+
 #all.ecounts<-cbind(ecounts[which(!is.na(t.idx)),],ecounts.mat[t.idx[which(!is.na(t.idx))],])
 
 

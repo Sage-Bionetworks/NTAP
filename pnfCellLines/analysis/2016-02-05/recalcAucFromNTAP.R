@@ -6,7 +6,7 @@ require(plyr)
 require(nplr)
 
 
-all.aucs=sapply(dfiles$entity.sampleName,function(x) doseReponseCurve(x,NA,FALSE)
+all.aucs=sapply(dfiles$entity.sampleName,function(x) doseResponseCurve(x,NA,FALSE))
 
 ##now try to reshape into matrix
 require(reshape2)
