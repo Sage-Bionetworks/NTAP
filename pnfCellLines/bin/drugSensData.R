@@ -134,9 +134,9 @@ doseResponseCurve<-function(cell,drug=NA,doPlot=TRUE){
 
             cvals<-unlist(drug.dat[grep('^C[0-9+]',names(drug.dat))])
             fit<-NA
-            try{
-                fit=nplr(cvals,dvals/max(dvals),useLog=TRUE)@AUC
-            }
+            try(
+                fit<-nplr(cvals,dvals/max(dvals),useLog=TRUE)@AUC
+            )
 
             return(fit)
         })
