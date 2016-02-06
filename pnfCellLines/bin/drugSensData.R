@@ -19,7 +19,7 @@ dfiles<-qr[-hind,]
 ##first read in all files and update curve class
 allfiles<-lapply(dfiles$entity.id,function(x) {
   #print(x)
-  res=as.data.frame(fread(synGet(x)@filePath,sep=',',header=T))
+  res=read.table(synGet(x)@filePath,sep=',',header=T)
   if('CRC'%in%colnames(res))
     cl=res$CRC
   else
@@ -54,7 +54,8 @@ getValueForAllCells<-function(valname){
       drugs<-allfiles[[x]]$name
       names(vals)<-drugs
       vals
-  })  return(drug.values)
+  })
+  return(drug.values)
 }
 
 plotOneCell<-function(cellname,as.categ=FALSE,use.disc=FALSE){
