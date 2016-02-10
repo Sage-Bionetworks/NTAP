@@ -96,4 +96,4 @@ doCorStats<-function(df,prefix='',minCor=0.25){
 
 ##not looking great
 doCorStats(all.tpms,'tpm')
-doCorStats(all.ecounts,'estCounts')
+#doCorStats(all.ecounts,'estCounts')
