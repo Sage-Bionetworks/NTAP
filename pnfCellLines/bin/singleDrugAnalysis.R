@@ -21,7 +21,7 @@ getDrugClusters<-function(aucMat,h=4,doZScore=TRUE){
     nz.zs.mat[which(is.na(nz.zs.mat),arr.ind=T)]<-0.0
 
     ##there is a pretty blue cluster there, can we do any enrichment?
-    drug.dists<-dist(nz.zs.mat)
+    drug.dists<-as.dist(1-cor(t(nz.zs.mat)))
     hc=hclust(drug.dists)
 
     ##now cut the clustering'
@@ -48,7 +48,7 @@ getCellClusters<-function(aucMat,h=4,doZScore=TRUE){
     nz.zs.mat[which(is.na(nz.zs.mat),arr.ind=T)]<-0.0
 
     ##there is a pretty blue cluster there, can we do any enrichment?
-    drug.dists<-dist(nz.zs.mat)
+    drug.dists<-as.dist(1-cor(t(nz.zs.mat)))
     hc=hclust(drug.dists)
 
     ##now cut the clustering'
@@ -68,16 +68,30 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
 
     ##join dataset
     ndf<-clusters
-    if(byDrug)
-        idx=match(ndf$Drug,clusterFeatures$Drug)
-    else
-        idx=match(ndf$Cell,clusterFeatures$Cell)
-
-    ndf$Target=as.character(clusterFeatures[,feature])[idx]
-
+    if(byDrug){
+        idx=lapply(as.character(ndf$Drug),function(x) which(clusterFeatures$Drug==x))
+        names(idx)<-ndf$Drug
+        ndf=do.call('rbind',apply(ndf,1,function(x) {
+          i=idx[[x[['Drug']]]]
+          data.frame(Drug=rep(x[['Drug']],length(i)),
+                     Cluster=rep(x[['Cluster']],length(i)),
+                     Target=clusterFeatures$Target[i])}))
+        
+    }else{
+        idx=lapply(ndf$Cell,function(x) which(clusterFeatures$Cell==x))
+        names(idx)<-ndf$Cell
+        ndf=do.call('rbind',apply(ndf,1,function(x) {
+          i=idx[[x[['Cell']]]]
+          data.frame(Drug=rep(x[['Cell']],length(i)),
+                     Cluster=rep(x[['Cluster']],length(i)),
+                     Target=clusterFeatures$Target[i])}))
+        
+    }
+#    ndf$Target=as.character(clusterFeatures[,feature])[idx]
+       
     ndf=ndf[which(!is.na(ndf$Target)),]
     ndf=ndf[which(ndf$Target!=""),]
-    print(paste('Reducing cluster set from',nrow(clusters),'to',nrow(ndf),'after removing NA and blank values'))
+    print(paste('Altering cluster set from',nrow(clusters),'to',nrow(ndf),'after removing NA and blank values and accounting for multiple drug targets'))
     drug.targs= ndf %>% group_by(Target,Cluster) %>% summarise(TimesTargetInCluster=n())
     tot.targs<-ndf %>% group_by(Target) %>% summarize(Total=n())
     clust.size<-ndf %>% group_by(Cluster) %>% summarize(Total=n())
@@ -87,7 +101,11 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
     targ.size=drug.targs %>% group_by(Cluster)%>% summarize(NumTargets=n())
     drug.targs$UniqueTargets=targ.size$NumTargets[match(drug.targs$Cluster,targ.size$Cluster)]
 
-    drug.targs$Drug=ndf$Drug[match(drug.targs$Cluster,ndf$Cluster)]
+    drug.targs$DrugsWithTarget=apply(drug.targs,1,function(x){
+        tc=which(ndf$Target==x[['Target']])
+        cc=which(ndf$Cluster==x[['Cluster']])
+        paste(ndf$Drug[intersect(tc,cc)],collapse=';')})
+    
     pvals=apply(drug.targs,1,function(x){
         over=as.numeric(x[['TimesTargetInCluster']])
         tt=as.numeric(x[['NumDrugsWithTarget']])

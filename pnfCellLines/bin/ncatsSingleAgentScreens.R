@@ -18,9 +18,9 @@ dfiles<-qr[grep('csv',qr$entity.name),]
 
 ##first read in all files and update curve class
 allfiles<-lapply(dfiles$entity.id,function(x) {
-  print(x)
+  #print(x)
   res=read.table(synGet(x)@filePath,sep=',',header=T,fill=T,quote='"')
-  print(ncol(res))
+  #print(ncol(res))
   if('CRC'%in%colnames(res))
     cl=res$CRC
   else
@@ -183,11 +183,16 @@ doseResponseCurve<-function(cell,drug=NA,doPlot=TRUE){
 
 }
 
+getRecalculatedAUCTab<-function(){
+  tab<-read.table(synGet('syn5637634')@filePath,header=T)
+  return(tab)
+}
+
 getRecalculatedAUCMatrix<-function(){
     tab<-read.table(synGet('syn5637634')@filePath,header=T)
-    dmat=sapply(unique(tab[,1]),function(x) colSums(tab[which(tab[,1]==x),-1]))
-    colnames(dmat)<-colnames(tab)[-1]
-    rownames(dmat)<-unique(tab[,1])
+    require(reshape2)
+    dmat=acast(tab,Cell~Drug,value.var='AUC',fun.aggregate=mean)
+    
     return(dmat)
 }
 
@@ -195,5 +200,11 @@ getRecalculatedAUCMatrix<-function(){
 #' @return data frame of drug and target
 ncatsDrugTargets<-function(){
     drugTargets<-getValueForAllCells('target')
-    return(data.frame(Drug=names(drugTargets[,1]),Target=drugTargets[,1]))
+    drugs=names(drugTargets[,1])
+    targs=lapply(as.character(drugTargets[,1]),function(x) unlist(strsplit(x,split=', ')))
+    names(targs)<-drugs
+    
+    fdf=do.call("rbind",lapply(drugs,function(x) data.frame(Drug=rep(x,length(targs[[x]])),Target=targs[[x]])))
+    return(unique(fdf))
+    
 }

@@ -69,14 +69,15 @@ ctrpDoseResponseCurve<-function(recalculate=TRUE){
         })
 
         res.auc=data.frame(attr(res.auc,'split_labels'),unlist(res.auc))
-        ##now add cell and drug names
-        new.df<-data.frame(AUC=as.numeric(res.auc$unlist.res.auc),
-                           Drug=drug_dat$cpd_name[match(res.auc$master_cpd_id,drug_dat$master_cpd_id)],
-                           CCL_id=ccl_dat$master_ccl_id[match(res.auc$experiment_id,ccl_dat$experiment_id)])
-        new.df$CCL=ccl_metadat$ccl_name[match(new.df$CCL_id,ccl_metadat$master_ccl_id)]
-    }else{
-        new.df<-read.table(synGet('syn5622708')@filePath)
+      }else{
+        res.auc<-read.table(synGet('syn5622708')@filePath,header=T)
     }
+  ##now add cell and drug names
+  new.df<-data.frame(AUC=as.numeric(res.auc$unlist.res.auc),
+                     Drug=drug_dat$cpd_name[match(res.auc$master_cpd_id,drug_dat$master_cpd_id)],
+                     CCL_id=ccl_dat$master_ccl_id[match(res.auc$experiment_id,ccl_dat$experiment_id)])
+  new.df$Cell=ccl_metadat$ccl_name[match(new.df$CCL_id,ccl_metadat$master_ccl_id)]
+  
     new.df
 }
 
