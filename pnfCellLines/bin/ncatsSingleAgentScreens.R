@@ -150,13 +150,14 @@ doseResponseCurve<-function(cell,drug=NA,doPlot=TRUE){
                 cvals<-as.numeric(drug.dat[grep('^C[0-9+]',names(drug.dat))])
                 fit<-NA
             try(
-                fit<-nplr(cvals,dvals/max(dvals),useLog=TRUE)@AUC[1]
+                fit<-nplr(cvals,dvals/max(dvals),useLog=TRUE)@AUC[[1]]
             )
 
             return(fit)
-        })
-        names(all.aucs)<-cell.resp$name
-            df=data.frame(Drug=cell.resp$name,AUC=all.aucs)
+            })
+            names(all.aucs)<-cell.resp$name
+            df=data.frame(Cell=rep(cell,length(all.aucs)),
+                Drug=cell.resp$name,AUC=all.aucs)
 
     }
     else{
@@ -176,7 +177,7 @@ doseResponseCurve<-function(cell,drug=NA,doPlot=TRUE){
         }
         all.aucs=fit
         names(all.aucs)<-drug
-        df=data.drame(Drug=drug,AUC=all.aucs)
+        df=data.frame(Cell=cell,Drug=drug,AUC=all.aucs)
     }
   return(df)
 

@@ -7,9 +7,13 @@ require(nplr)
 
 
 all.aucs=sapply(dfiles$entity.sampleName,function(x) doseResponseCurve(x,NA,FALSE))
-df<-as.data.frame(all.aucs)
-df<-apply(all.aucs,2,unlist)
-rownames(df)<-rownames(all.aucs)
+
+names(all.aucs)<-dfiles$entity.sampleName
+
+df=do.call("rbind",all.aucs)
+#df<-as.data.frame(all.aucs)
+#df<-apply(all.aucs,2,unlist)
+#rownames(df)<-rownames(all.aucs)
 
 write.table(df,file='aucRecalculatedFromNCATSscreens_nplr.txt',sep='\t')
 
