@@ -83,5 +83,11 @@ ctrpDoseResponseCurve<-function(recalculate=TRUE){
 #' Get CTRP- predicted target of drug
 #' @return data frame of drug and target
 ctrpDrugTargets<-function(){
-    return(data.frame(Drug=drug_dat$cpd_name,Target=drug_dat$gene_symbol_of_protein_target))
+    tlist=apply(drug_dat,1,function(x){
+        targs=unlist(strsplit(x[['gene_symbol_of_protein_target']],split=';'))
+        drug=rep(x[['cpd_name']],length(targs))
+        data.frame(Drug=drug,Target=targs)
+    })
+    tdat=do.call("rbind",tlist)
+    return(tdat)
 }

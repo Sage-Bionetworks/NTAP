@@ -72,8 +72,12 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
         idx=match(ndf$Drug,clusterFeatures$Drug)
     else
         idx=match(ndf$Cell,clusterFeatures$Cell)
+
     ndf$Target=as.character(clusterFeatures[,feature])[idx]
+
     ndf=ndf[which(!is.na(ndf$Target)),]
+    ndf=ndf[which(ndf$Target!=""),]
+    print(paste('Reducing cluster set from',nrow(clusters),'to',nrow(ndf),'after removing NA and blank values'))
     drug.targs= ndf %>% group_by(Target,Cluster) %>% summarise(TimesTargetInCluster=n())
     tot.targs<-ndf %>% group_by(Target) %>% summarize(Total=n())
     clust.size<-ndf %>% group_by(Cluster) %>% summarize(Total=n())
