@@ -8,9 +8,14 @@ script.dir <- dirname(sys.frame(1)$ofile)
 #' @param aucMat matrix of AUC values - rows are
 #' @param h Height at which to cut cluster
 #' @return data frame of Drugs and Cluster to which they are assigned
-getDrugClusters<-function(aucMat,h=4,doZScore=TRUE){
+getDrugClusters<-function(aucMat,h=4,doubleSigAlpha=NA,doZScore=TRUE){
                                         #now zscore them
-    if(doZScore){
+  
+  ##THIS FUNCTION IS DEPRACATED
+  if(!is.na(doubleSigAlpha))
+    return( getClusters(aucMat,h,byCol=FALSE,doubleSigAlpha))
+  
+  if(doZScore){
         zsMat<-apply(aucMat,2,function(x) (x-mean(x,na.rm=T))/sd(x,na.rm=T))
         nz.zs.mat=zsMat
                                         #reset NA values
@@ -30,25 +35,44 @@ getDrugClusters<-function(aucMat,h=4,doZScore=TRUE){
     return(data.frame(Drug=names(drug.clusters),Cluster=drug.clusters))
 }
 
-#' Get clusters of cells from AUC values (transpose of getDrugClusters)
+#' Get clusters of AUC values by row or column
 #' @param aucMat matrix of AUC values - rows are
 #' @param h Height at which to cut cluster
+#' @param byCol set to true to analyze by column (cells) otherwise will cluster rows (drugs)
+#' @param doubleSigAlpha - alpha value to use for double sigmoid. if NA, no transform is done
 #' @return data frame of Drugs and Cluster to which they are assigned
-getCellClusters<-function(aucMat,h=4,doZScore=TRUE){
-    aucMat=t(aucMat)
+getClusters<-function(aucMat,h=4,byCol=FALSE,doubleSigAlpha=NA){
+    
+    #aucMat=t(aucMat)
                                         #now zscore them
-    if(doZScore){
-        zsMat<-apply(aucMat,2,function(x) (x-mean(x,na.rm=T))/sd(x,na.rm=T))
-        nz.zs.mat=zsMat
-                                        #reset NA values
+    #  if(doZScore){
+    #      zsMat<-apply(aucMat,2,function(x) (x-mean(x,na.rm=T))/sd(x,na.rm=T))
+    #       nz.zs.mat=zsMat
+                                       #reset NA values
+    #  }else{
+    #      nz.zs.mat=aucMat
+    # }
+  
+    #always cluster by column, so transpose if necessary
+    if(!byCol)
+      aucMat=t(aucMat)
+    
+    ##now establish correlations
+    if(is.na(doubleSigAlpha)){
+      corvals=cor(aucMat,use='pairwise.complete.obs')    
     }else{
-        nz.zs.mat=aucMat
+      fz.mat=apply(aucMat,2,function(x)
+          apply(aucMat,2,function(y)
+            fzCor(x,y)))
+      rownames(fz.mat)<-colnames(fz.mat)<-colnames(aucMat)
+      corvals=dsTransform(fz.mat,alpha=doubleSigAlpha)
     }
+    
 
-    nz.zs.mat[which(is.na(nz.zs.mat),arr.ind=T)]<-0.0
+    corvals[which(is.na(corvals),arr.ind=T)]<-0.0
 
     ##there is a pretty blue cluster there, can we do any enrichment?
-    drug.dists<-as.dist(1-cor(t(nz.zs.mat)))
+    drug.dists<-as.dist(1-corvals)
     hc=hclust(drug.dists)
 
     ##now cut the clustering'
@@ -56,6 +80,37 @@ getCellClusters<-function(aucMat,h=4,doZScore=TRUE){
                                         # hist(sapply(drug.clusters,length))
     return(data.frame(Cell=names(drug.clusters),Cluster=drug.clusters))
 }
+
+#' Adjusted correlation - does standard pearson with fisher z transform
+#' and a double signmoid transform to enable clustering
+#' @param vec1: first vector
+#' @param vec2: second vector
+#' 
+fzCor<-function(vec1,vec2){
+  ##first collect all measured values
+  m.vals=intersect(which(!is.nan(vec1)),which(!is.nan(vec2)))
+  if(length(m.vals)<4)
+    return(NA)
+  #compute r
+  r=cor(vec1[m.vals],vec2[m.vals])
+  if(r==1.0)
+    r=0.999999
+  #now do fisher z transform
+  fz = (log((1+r)/(1-r))/2)*sqrt(length(m.vals)-3)
+  fz
+}
+
+#'Double Sigmoid Transform
+#'Takes two parameters
+#'@param k = 3 in both CD and JBMS papers
+#'@param alpha = 2.5ish in JBMS papers
+dSigTransform<-function(mat,k=3,alpha=2.5){
+  #plim=10^((-0.95)*(-log10(min(pnorm(mat),na.rm=TRUE))+log10(0.05))-log10(0.05))
+  #zlim=quantile(mat,plim,na.rm=T)
+  dval=((mat/alpha)^k)/sqrt(1+(mat/alpha)^(2*k))
+  dval
+}
+
 
 #' Cluster enrichment analysis - according to ACME paper
 #' @param clusters Data frame from getDrugClusters or getCellClusters function
