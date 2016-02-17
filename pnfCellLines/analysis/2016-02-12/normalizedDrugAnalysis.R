@@ -17,19 +17,20 @@ orig.ctrp<-getCtrpScreensAsMatrix()
 rescored.ncats<-acast(getRecalculatedAUCTab(),Drug~Cell,value.var="AUC",fun.aggregate = mean)
 rescored.ctrp<-acast(ctrpDoseResponseCurve(FALSE),Drug~Cell,value.var="AUC",fun.aggregate = mean)
 
-##do drug-target clustering
-ncats.targs<-ncatsDrugTargets()
-ctrp.targs<-ctrpDrugTargets()
+##now test normalization on rows and columns
+testNormalizationParameters(orig.ncats,byCol=FALSE,alphas=c(1,5,10,100),prefix='ncatsDrug')
+testNormalizationParameters(orig.ncats,byCol=TRUE,alphas=c(1,5,10,100),prefix='ncatsCell')
 
-#get clusters, targets, and enrichment
-orig.n.clust=getClusters(orig.ncats,1,byCol=FALSE,doubleSigAlpha=10)
-orig.c.clust=getClusters(orig.ctrp,0.8,byCol=FALSE,doubleSigAlpha=10)
+testNormalizationParameters(rescored.ncats,byCol=FALSE,alphas=c(1,5,10,100),prefix='rescoredNcatsDrug')
+testNormalizationParameters(rescored.ncats,byCol=TRUE,alphas=c(1,5,10,100),prefix='rescoredNcatsCell')
 
-##now do p-value enrichment
-n.enrich=clusterEnrichment(orig.n.clust,ncats.targs)
-c.enrich=clusterEnrichment(orig.c.clust,ctrp.targs)
+testNormalizationParameters(orig.ctrp,byCol=FALSE,alphas=c(1,5,10,100),prefix='ctrpDrug')
+testNormalizationParameters(orig.ctrp,byCol=TRUE,alphas=c(1,5,10,100),prefix='ctrpCell')
 
-##are we seeing meaningful target enrichment?
-View(subset(c.enrich[order(c.enrich$Cluster),],FDR<0.05))
+testNormalizationParameters(rescored.ctrp,byCol=FALSE,alphas=c(1,5,10,100),prefix='rescoredCtrpDrug')
+testNormalizationParameters(rescored.ctrp,byCol=TRUE,alphas=c(1,5,10,100),prefix='rescoredCtrpCell')
 
-#yes!!  but still need to do fisher z transform and double sigmoid.  
+##now add in more cell parameters
+testNormalizationParameters(orig.ncats,byCol=TRUE,alphas=c(20,40,60,80),prefix='ncatsCell')
+testNormalizationParameters(rescored.ncats,byCol=TRUE,alphas=c(20,40,60,80),prefix='rescoredNcatsCell')
+
