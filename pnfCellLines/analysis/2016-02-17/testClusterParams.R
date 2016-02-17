@@ -17,6 +17,7 @@ ncats.targs<-ncatsDrugTargets()
 ctrp.targs<-ctrpDrugTargets()
 
 #get clusters, targets, and enrichment
+stats<-list()
 for (cheight in c(0.1,0.5,1,5)){
   orig.n.clust=getClusters(orig.ncats,cheight,byCol=FALSE,doubleSigAlpha=1)
   orig.c.clust=getClusters(orig.ctrp,cheight,byCol=FALSE,doubleSigAlpha=10)
@@ -28,17 +29,39 @@ for (cheight in c(0.1,0.5,1,5)){
   c.enrich=clusterEnrichment(orig.c.clust,ctrp.targs)
   rn.enrich=clusterEnrichment(rescored.n.clust,ncats.targs)
   rc.enrich=clusterEnrichment(rescored.c.clust,ctrp.targs)
+  ##first NCATS
+  stats$Dataset<-c(stats$Dataset,rep("NCATS",2))
+  stats$Alpha<-c(stats$Alpha,rep(1,2))
+  stats$ClusterHeight=c(stats$ClusterHeight,rep(cheight,2))
+  #original
+  stats$NumClusters=c(stats$NumClusters,length(unique(n.enrich$Cluster)))
+  stats$CurveCalc=c(stats$CurveCalc,'Original')
+  stats$NumSig=c(stats$NumSig,length(which(n.enrich$FDR<0.05)))
+  #nplr
+  stats$NumClusters=c(stats$NumClusters,length(unique(rn.enrich$Cluster)))
+  stats$CurveCalc=c(stats$CurveCalc,'NPLR')
+  stats$NumSig=c(stats$NumSig,length(which(rn.enrich$FDR<0.05))) 
+  ##then CTRP
+  stats$Dataset<-c(stats$Dataset,rep("CTRP",2))
+  stats$Alpha<-c(stats$Alpha,rep(10,2))
+  stats$ClusterHeight=c(stats$ClusterHeight,rep(cheight,2))
+  #original
+  stats$NumClusters=c(stats$NumClusters,length(unique(c.enrich$Cluster)))
+  stats$CurveCalc=c(stats$CurveCalc,'Original')
+  stats$NumSig=c(stats$NumSig,length(which(c.enrich$FDR<0.05)))
+  #nplr
+  stats$NumClusters=c(stats$NumClusters,length(unique(rc.enrich$Cluster)))
+  stats$CurveCalc=c(stats$CurveCalc,'NPLR')
+  stats$NumSig=c(stats$NumSig,length(which(rc.enrich$FDR<0.05))) 
+  
   
   ##now write files
   write.table(n.enrich,file=paste('ncatsOriginal_ds1_clusHeight',cheight,'clusterPvals.csv',sep=''),sep=',')
-  write.table(c.enrich,file=paste('ctrpOriginal_ds1_clusHeight',cheight,'clusterPvals.csv',sep=''),sep=',')
+  write.table(c.enrich,file=paste('ctrpOriginal_ds10_clusHeight',cheight,'clusterPvals.csv',sep=''),sep=',')
  
   write.table(rn.enrich,file=paste('rescored_ncatsOriginal_ds1_clusHeight',cheight,'clusterPvals.csv',sep=''),sep=',')
-  write.table(rc.enrich,file=paste('rescored_ctrpOriginal_ds1_clusHeight',cheight,'clusterPvals.csv',sep=''),sep=',')
+  write.table(rc.enrich,file=paste('rescored_ctrpOriginal_ds10_clusHeight',cheight,'clusterPvals.csv',sep=''),sep=',')
   
   
 }
-##are we seeing meaningful target enrichment?
-#View(subset(c.enrich[order(c.enrich$Cluster),],FDR<0.05))
-
-#yes!!  but still need to do fisher z transform and double sigmoid.  
+write.table(as.data.frame(stats),file='ClusterStatsByHeight.csv',sep=',',row.names=F)
