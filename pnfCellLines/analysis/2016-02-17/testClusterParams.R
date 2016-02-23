@@ -18,7 +18,7 @@ ctrp.targs<-ctrpDrugTargets()
 
 #get clusters, targets, and enrichment
 stats<-list()
-for (cheight in c(0.1,0.5,1,5)){
+for (cheight in c(0.1,0.5,1)){
   orig.n.clust=getClusters(orig.ncats,cheight,byCol=FALSE,doubleSigAlpha=1)
   orig.c.clust=getClusters(orig.ctrp,cheight,byCol=FALSE,doubleSigAlpha=10)
   rescored.n.clust=getClusters(orig.ncats,cheight,byCol=FALSE,doubleSigAlpha=1)
@@ -65,3 +65,52 @@ for (cheight in c(0.1,0.5,1,5)){
   
 }
 write.table(as.data.frame(stats),file='ClusterStatsByHeight.csv',sep=',',row.names=F)
+
+afiles=list.files('.')
+cluster.dir='syn5674273'
+csvs=afiles[grep("csv",afiles)]
+this.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-17/testClusterParams.R'
+ncats.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/ncatsSingleAgentScreens.R'
+ctrp.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/ctrpSingleAgentScreens.R'
+analysis.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/singleDrugAnalysis.R'
+for(csv in csvs){
+  #first check to see if we're using CTRP or ncats, and original vs. rescored
+  if(length(grep('ncats',csv))>0){
+        
+    if(length(grep('rescored',csv))>0){
+      uf='syn5637634'
+    }else{
+      uf='syn5522627'
+      
+    }
+    sf=File(csv,parentId=cluster.dir)
+    synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE),
+                          list(url=ncats.script,wasExecuted=TRUE),
+                          list(url=analysis.script,wasExecuted=TRUE),
+                          list(entity=uf,wasExecuted=FALSE)),
+             activityName='drug AUC Clustering')
+    
+  }else if(length(grep('ctrp',csv))>0){
+    if(length(grep('rescored',csv))>0){
+      uf='syn5622708'
+    }else{
+      uf='syn5632189'
+      
+    }
+    sf=File(csv,parentId=cluster.dir)
+    synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE),
+                          list(url=ctrp.script,wasExecuted=TRUE),
+                          list(url=analysis.script,wasExecuted=TRUE),
+                          list(entity=uf,wasExecuted=FALSE)),
+             activityName='drug AUC Clustering')
+    
+  }else{
+    sf=File(csv,parentId=cluster.dir)
+    synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE),
+                          list(url=ncats.script,wasExecuted=TRUE),
+                          list(url=ctrp.script,wasExecuted=TRUE),
+                          list(url=analysis.script,wasExecuted=TRUE)),
+             activityName='drug AUC Clustering Summary')
+    
+  }
+}

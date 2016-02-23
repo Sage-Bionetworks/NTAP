@@ -102,10 +102,14 @@ fzCor<-function(vec1,vec2){
   m.vals=intersect(m.vals,intersect(which(!is.na(vec1)),which(!is.na(vec2))))
   if(length(m.vals)<4)
     return(NA)
+ # print(length(m.vals))
   #compute r
   r=cor(vec1[m.vals],vec2[m.vals])
-  if(r==1.0)
+  if(is.na(r))
+    return(NA)
+  else if(r==1.0)
     r=0.999999
+
   #now do fisher z transform
   fz = (log((1+r)/(1-r))/2)*sqrt(length(m.vals)-3)
   fz

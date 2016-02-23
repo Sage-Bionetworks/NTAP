@@ -248,3 +248,5 @@ plotPCA<-function(count.mat,metric='tpm',ttype=c()){
 calcDiffEx<-function(){
   require('sleuth')
 }
+
+

@@ -107,6 +107,83 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
   return(df)
 }
 
+
+
+#'Generic function to compute RNA/Drug normalization
+#'@param drugMat - matrix of drug AUC values by cell line
+#'@param rnaMat - matrix of rna expressionv values by cell line
+#'@param prefix - to name files
+#'@param sampleCombos - if sampling from all possible combos, provide number here
+#'@alpha alpha parameter to use as double sigma input
+#'@return list of files summarizing results
+computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,alpha=2.5){
+  #collect overlap, reshape matrices
+  cells=intersect(colnames(drugMat),colnames(rnaMat))
+  print(paste('found',length(cells),'cells common between both drug and expression experiments'))
+  rnaMat<-rnaMat[,cells]
+  drugMat<-drugMat[,cells]
+  
+  ##remove zero variance genes/drugs
+  zv=which(apply(rnaMat,1,var)==0)
+  if(length(zv)>0)
+    rnaMat<-rnaMat[-zv,]
+  zv=which(apply(drugMat,1,var)==0)
+  if(length(zv)>0)
+    drugMat<-drugMat[-zv,] 
+  
+  ##enumerate all combos (or sample for later)
+  gene.drug.combos=do.call("rbind",lapply(rownames(rnaMat),function(x) cbind(Gene=rep(x,nrow(drugMat)),Drug=rownames(drugMat))))
+  #add in sampling option to estimate distribution to avoid computing all
+  if(!is.na(sampleCombos)){
+    gdc<-gene.drug.combos[sample(1:nrow(gene.drug.combos),sampleCombos),]
+  }
+  else
+    gdc<-gene.drug.combos
+  
+  ##get all combos
+  res=apply(gdc,1,function(x){
+    #print(paste(x,collapse=','))
+    g=as.numeric(rnaMat[x[[1]],])
+    d=as.numeric(drugMat[x[[2]],])
+    
+    na1=intersect(which(!is.na(g)),which(!is.nan(g)))
+    na2=intersect(which(!is.na(d)),which(!is.nan(d)))
+    
+    
+    orig.cor=stats::cor(g,d,use='p')
+    fz.cor=fzCor(g,d)
+    return(list(Pearson=orig.cor,fisherZ=fz.cor,Overlap=length(intersect(na1,na2))))
+  })
+  
+  full.res=data.frame(gdc,do.call('rbind',res))
+  full.res$fisherZ<-as.numeric(full.res$fisherZ)
+  full.res$Overlap<-as.numeric(full.res$Overlap)
+  full.res$Pearson<-as.numeric(full.res$Pearson)
+  
+  full.res$doubleSigma=dSigTransform(as.numeric(full.res$fisherZ))
+  
+  require(ggplot2)
+  
+  ##plot
+  
+  p<-ggplot(full.res)+geom_point(mapping=aes(x=Pearson,y=doubleSigma,colour=Overlap),stat='identity')
+  p<-p+scale_colour_gradientn(colours=rainbow(5))+ggtitle(paste('Pearson R vs. transformed (alpha=',alpha,') \nfor',ifelse(is.na(sampleCombos),'all',sampleCombos),prefix,'\nDrug-Transcript Combinations'))
+  
+  basename=paste(prefix,'alpha',alpha,'pearsonVsDoubleSig',ifelse(is.na(sampleCombos),'all',sampleCombos),'Pairs',sep='_')
+  
+  pngname=paste(basename,'png',sep='.')
+  png(pngname)
+  print(p)
+  dev.off()
+  
+  #write to file
+  tabname=paste(basename,'tab',sep='.')
+  write.table(full.res,file=tabname,row.names=F,col.names=T,sep='\t')
+  return(paste(basename,c('png','tab'),sep='.'))
+  
+}
+
+
 ##now collapse by gene
 ##first compare drug sensitivity data with RNA/CNV
 drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
@@ -158,3 +235,15 @@ drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
   print(p)
   dev.off()
 }
+
+
+#'
+#'Lastly to do a global correlation of all transcripts/genes across all drugs
+#'we first need to test normalization
+testNormalization<-function(geneMat,drugMat,alpha=c(0.1,1,10,100),prefix=''){
+  
+}
+
+#'
+#'Now do large correlation matrix
+globalCorrelationAnalysis<-function(geneMat,drugMat,alpha,prefix=''){}

@@ -100,3 +100,48 @@ dev.off()
 ##so, alpha 10 looks ok
 ##now get clusters at alpha of 10
 
+##now lets store these results
+afiles=list.files('.')
+csvs=afiles[grep('png',afiles)]
+cluster.dir='syn5674273'
+this.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-12/testNormalization.R'
+ncats.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/ncatsSingleAgentScreens.R'
+ctrp.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/ctrpSingleAgentScreens.R'
+analysis.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/singleDrugAnalysis.R'
+for(csv in csvs){
+  #first check to see if we're using CTRP or ncats, and original vs. rescored
+  if(length(grep('ncats',csv,ignore.case=TRUE))>0){
+    
+    if(length(grep('rescored',csv,ignore.case=TRUE))>0){
+      uf='syn5637634'
+    }else{
+      uf='syn5522627'
+      
+    }
+    sf=File(csv,parentId=cluster.dir)
+    synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE),
+                          list(url=ncats.script,wasExecuted=TRUE),
+                          list(url=analysis.script,wasExecuted=TRUE),
+                          list(entity=uf,wasExecuted=FALSE)),
+             activityName='cluster parameter tests')
+    
+  }else if(length(grep('ctrp',csv,ignore.case=TRUE))>0){
+    if(length(grep('rescored',csv,ignore.case=TRUE))>0){
+      uf='syn5622708'
+    }else{
+      uf='syn5632189'
+      
+    }
+    sf=File(csv,parentId=cluster.dir)
+    synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE),
+                          list(url=ctrp.script,wasExecuted=TRUE),
+                          list(url=analysis.script,wasExecuted=TRUE),
+                          list(entity=uf,wasExecuted=FALSE)),
+             activityName='cluster parameter test')
+    
+  }else{
+    print(csv)
+    
+  }
+}
+
