@@ -49,5 +49,6 @@ testNcatsNorm<-function(){
 }
 
 
-
+testCTD2Norm()
+testNcatsNorm()
 
