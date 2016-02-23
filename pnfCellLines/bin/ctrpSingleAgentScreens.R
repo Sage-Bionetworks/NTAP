@@ -53,7 +53,7 @@ plotMostVariableAUCs<-function(ft='png'){
 #' Recompute the dose response curve from the data points using NPLR
 #' @param recalculate Set to true to recalculate, otherwise will pull from synapse
 #' @return Data frame of each cell, drug and value
-ctrpDoseResponseCurve<-function(recalculate=TRUE){
+ctrpDoseResponseCurve<-function(recalculate=TRUE,as.matrix=FALSE){
     require(nplr)
     require(plyr)
     if(recalculate){
@@ -78,7 +78,10 @@ ctrpDoseResponseCurve<-function(recalculate=TRUE){
                      CCL_id=ccl_dat$master_ccl_id[match(res.auc$experiment_id,ccl_dat$experiment_id)])
   new.df$Cell=ccl_metadat$ccl_name[match(new.df$CCL_id,ccl_metadat$master_ccl_id)]
   
-    new.df
+  if(as.matrix)
+    return(acast(new.df,Drug~Cell,value.var='AUC',fun.aggregate=function(x) mean(x,na.rm=T)))
+  else
+    return(new.df)
 }
 
 #' Get CTRP- predicted target of drug

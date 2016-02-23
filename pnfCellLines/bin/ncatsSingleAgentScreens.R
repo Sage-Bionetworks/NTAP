@@ -191,7 +191,7 @@ getRecalculatedAUCTab<-function(){
 getRecalculatedAUCMatrix<-function(){
     tab<-read.table(synGet('syn5637634')@filePath,header=T)
     require(reshape2)
-    dmat=acast(tab,Cell~Drug,value.var='AUC',fun.aggregate=mean)
+    dmat=acast(tab,Cell~Drug,value.var='AUC',fun.aggregate=function(x) mean(x,na.rm=T))
     
     return(dmat)
 }

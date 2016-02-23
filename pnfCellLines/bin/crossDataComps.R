@@ -117,6 +117,9 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
 #'@alpha alpha parameter to use as double sigma input
 #'@return list of files summarizing results
 computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,alpha=2.5){
+  if(require(multicore))
+    lapply<-function(x,...) mclapply(x,...)
+  
   #collect overlap, reshape matrices
   cells=intersect(colnames(drugMat),colnames(rnaMat))
   print(paste('found',length(cells),'cells common between both drug and expression experiments'))
@@ -132,16 +135,19 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
     drugMat<-drugMat[-zv,] 
   
   ##enumerate all combos (or sample for later)
-  gene.drug.combos=do.call("rbind",lapply(rownames(rnaMat),function(x) cbind(Gene=rep(x,nrow(drugMat)),Drug=rownames(drugMat))))
+  gene.drug.combos=do.call('rbind',lapply(rownames(rnaMat),function(x) cbind(Gene=rep(x,nrow(drugMat)),Drug=rownames(drugMat))))
   #add in sampling option to estimate distribution to avoid computing all
+  
   if(!is.na(sampleCombos)){
-    gdc<-gene.drug.combos[sample(1:nrow(gene.drug.combos),sampleCombos),]
+    idx=sample(1:nrow(gene.drug.combos),sampleCombos)
   }
   else
-    gdc<-gene.drug.combos
+    idx=1:nrow(gene.drug.combos)
+  #make into list to multi-core
+  gdc<-lapply(idx,function(x) gene.drug.combos[x,])
   
   ##get all combos
-  res=apply(gdc,1,function(x){
+  res=lapply(gdc,function(x){
     #print(paste(x,collapse=','))
     g=as.numeric(rnaMat[x[[1]],])
     d=as.numeric(drugMat[x[[2]],])
@@ -155,7 +161,7 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
     return(list(Pearson=orig.cor,fisherZ=fz.cor,Overlap=length(intersect(na1,na2))))
   })
   
-  full.res=data.frame(gdc,do.call('rbind',res))
+  full.res=data.frame(do.call('rbind',gdc),do.call('rbind',res))
   full.res$fisherZ<-as.numeric(full.res$fisherZ)
   full.res$Overlap<-as.numeric(full.res$Overlap)
   full.res$Pearson<-as.numeric(full.res$Pearson)
