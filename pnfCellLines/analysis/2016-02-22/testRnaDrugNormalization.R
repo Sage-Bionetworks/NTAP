@@ -22,15 +22,15 @@ testCTD2Norm<-function(numSamps=NA){
     res=computeDrugRnaNormalizedCor(drugMat=ctrpMat,rnaMat=ccle.tpm,prefix='ctrpOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
     }
 
     res=computeDrugRnaNormalizedCor(drugMat=reMat,rnaMat=ccle.tpm,prefix='ctrpRescored',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
     }
-    
+
   }
 
 }
@@ -43,20 +43,20 @@ testNcatsNorm<-function(numSamps=NA){
   ##ncats vs. cell lines
   source('../../bin/RNASeqData.R')
   source("../../bin/ncatsSingleAgentScreens.R")
-  genCodeMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
+  genCodeMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE,byGene=TRUE)
   drugMat<-getValueForAllCells("FAUC")
   remat=getRecalculatedAUCMatrix()
   for(ap in alpha.pars){
     res=computeDrugRnaNormalizedCor(drugMat=drugMat,rnaMat=genCodeMat,prefix='ncatsOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
     }
 
     res=computeDrugRnaNormalizedCor(drugMat=reMat,rnaMat=genCodeMat,prefix='ncatsRescored',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
     }
   }
 }
