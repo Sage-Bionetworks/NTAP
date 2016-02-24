@@ -58,6 +58,10 @@ getValueForAllCells<-function(valname){
       names(vals)<-drugs
       vals
   })
+  
+  rownames(drug.values)[which(is.na(rownames(drug.values)))]<-'NA'
+  dupes=rownames(drug.values)[which(duplicated(rownames(drug.values)))]
+  rownames(drug.values)[which(duplicated(rownames(drug.values)))]<-paste(dupes,'alt',sep='_')
   return(drug.values)
 }
 
@@ -191,7 +195,7 @@ getRecalculatedAUCTab<-function(){
 getRecalculatedAUCMatrix<-function(){
     tab<-read.table(synGet('syn5637634')@filePath,header=T)
     require(reshape2)
-    dmat=acast(tab,Cell~Drug,value.var='AUC',fun.aggregate=function(x) mean(x,na.rm=T))
+    dmat=acast(tab,Drug~Cell,value.var='AUC',fun.aggregate=function(x) mean(x,na.rm=T))
     
     return(dmat)
 }

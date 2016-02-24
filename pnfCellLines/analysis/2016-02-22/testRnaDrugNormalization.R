@@ -18,6 +18,7 @@ testCTD2Norm<-function(numSamps=NA){
 
   #also get re-normalized CTRP
   reMat<-ctrpDoseResponseCurve(FALSE,TRUE)
+
   for(ap in alpha.pars){
     res=computeDrugRnaNormalizedCor(drugMat=ctrpMat,rnaMat=ccle.tpm,prefix='ctrpOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
