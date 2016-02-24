@@ -95,17 +95,17 @@ computePCAcor(ccle.pc,ctrpr.pc,'CCLE','CTRP_rescored')
 
 
 png('PCA_plots_of_CCLE_RNASeq.png')
-p1=ggbiplot(ccle.pc,var.axes=F,scale = 0,labels=ncats.cells,choices=1:2)+ggtitle('CCLE PC1,2')
+p1=ggbiplot(ccle.pc,var.axes=F,scale = 0,labels=com.cells,choices=1:2)+ggtitle('CCLE PC1,2')
 print(p1)
 dev.off()
 
 png('PCA_plots_of_CTRP.png')
-p1=ggbiplot(ctrp.pc,var.axes=F,scale = 0,labels=ncats.cells,choices=c(4,1))+ggtitle('CCLE PC4,1')
+p1=ggbiplot(ctrp.pc,var.axes=F,scale = 0,labels=com.cells,choices=c(4,1))+ggtitle('CCLE PC4,1')
 print(p1)
 dev.off()
 
 png('PCA_plots_of_CTRP_rescored.png')
-p1=ggbiplot(ctrpr.pc,var.axes=F,scale = 0,labels=ncats.cells,choices=c(4,1))+ggtitle('CCLE PC4,1')
+p1=ggbiplot(ctrpr.pc,var.axes=F,scale = 0,labels=com.cells,choices=c(4,1))+ggtitle('CCLE PC4,1')
 print(p1)
 dev.off()
 
