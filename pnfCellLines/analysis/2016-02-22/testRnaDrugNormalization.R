@@ -22,13 +22,13 @@ testCTD2Norm<-function(numSamps=NA){
     res=computeDrugRnaNormalizedCor(drugMat=ctrpMat,rnaMat=ccle.tpm,prefix='ctrpOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synapseStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
     }
 
     res=computeDrugRnaNormalizedCor(drugMat=reMat,rnaMat=ccle.tpm,prefix='ctrpRescored',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synapseStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
     }
     
   }
@@ -50,13 +50,13 @@ testNcatsNorm<-function(numSamps=NA){
     res=computeDrugRnaNormalizedCor(drugMat=drugMat,rnaMat=genCodeMat,prefix='ncatsOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synapseStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
     }
 
     res=computeDrugRnaNormalizedCor(drugMat=reMat,rnaMat=genCodeMat,prefix='ncatsRescored',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
-      synapseStore(sf,used=list(url=this.script,wasExecuted=TRUE))
+      synStore(sf,used=list(url=this.script,wasExecuted=TRUE))
     }
   }
 }

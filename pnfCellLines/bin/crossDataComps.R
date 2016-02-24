@@ -117,7 +117,7 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
 #'@alpha alpha parameter to use as double sigma input
 #'@return list of files summarizing results
 computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,alpha=2.5){
-  if(require(multicore))
+  if(require(parallel))
     lapply<-function(x,...) mclapply(x,...)
   
   #collect overlap, reshape matrices
@@ -139,8 +139,12 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
   #add in sampling option to estimate distribution to avoid computing all
   
   if(!is.na(sampleCombos)){
+    if(sampleCombos>nrow(gene.drug.combos)){
+	print('Sample size is greater than all permutations, just doing all')
+        idx=1:nrow(gene.drug.combos)
+    }else{
     idx=sample(1:nrow(gene.drug.combos),sampleCombos)
-  }
+  }} 
   else
     idx=1:nrow(gene.drug.combos)
   #make into list to multi-core
@@ -177,15 +181,15 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
   
   basename=paste(prefix,'alpha',alpha,'pearsonVsDoubleSig',ifelse(is.na(sampleCombos),'all',sampleCombos),'Pairs',sep='_')
   
-  pngname=paste(basename,'png',sep='.')
-  png(pngname)
+  pngname=paste(basename,'pdf',sep='.')
+  pdf(pngname)
   print(p)
   dev.off()
   
   #write to file
   tabname=paste(basename,'tab',sep='.')
   write.table(full.res,file=tabname,row.names=F,col.names=T,sep='\t')
-  return(paste(basename,c('png','tab'),sep='.'))
+  return(paste(basename,c('pdf','tab'),sep='.'))
   
 }
 
