@@ -33,6 +33,9 @@ computePCAcor<-function(pca1,pca2,names1,names2){
   return(cmat)
 }
 
+computePCAGeneCor<-function(pca1,gene2,names1,names2){
+  
+}
 
 genCodeMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE,byGene=TRUE)
 
