@@ -18,8 +18,10 @@ testCTD2Norm<-function(numSamps=NA){
 
   #also get re-normalized CTRP
   reMat<-ctrpDoseResponseCurve(FALSE,TRUE)
+ 
+  #for(ap in alpha.pars){
+  r=lapply(alpha.pars[-1],function(ap){
 
-  for(ap in alpha.pars){
     res=computeDrugRnaNormalizedCor(drugMat=ctrpMat,rnaMat=ccle.tpm,prefix='ctrpOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
@@ -32,7 +34,7 @@ testCTD2Norm<-function(numSamps=NA){
       synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
     }
 
-  }
+  })
 
 }
 
@@ -47,7 +49,8 @@ testNcatsNorm<-function(numSamps=NA){
   genCodeMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE,byGene=TRUE)
   drugMat<-getValueForAllCells("FAUC")
   remat=getRecalculatedAUCMatrix()
-  for(ap in alpha.pars){
+ # for(ap in alpha.pars){
+  r=lapply(alpha.pars,function(ap){
     res=computeDrugRnaNormalizedCor(drugMat=drugMat,rnaMat=genCodeMat,prefix='ncatsOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
@@ -59,7 +62,7 @@ testNcatsNorm<-function(numSamps=NA){
       sf=File(f,parentId='syn5679539')
       synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
     }
-  }
+  })
 }
 
 
