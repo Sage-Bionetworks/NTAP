@@ -117,8 +117,8 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
 #'@alpha alpha parameter to use as double sigma input
 #'@return list of files summarizing results
 computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,alpha=2.5){
-  if(require(parallel))
-    lapply<-function(x,...) mclapply(x,...)
+# if(require(parallel))
+  #  lapply<-function(x,...) mclapply(x,...)
 
   #collect overlap, reshape matrices
   cells=intersect(colnames(drugMat),colnames(rnaMat))
@@ -151,21 +151,24 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
   gdc<-lapply(idx,function(x) gene.drug.combos[x,])
 
   ##get all combos
-  res=lapply(gdc,function(x){
+  res=lapply(gdc,function(x,rnaMat,drugMat){
     #print(paste(x,collapse=','))
+    ret=list(Pearson=NA,fisherZ=NA,Overlap=NA)
+    
     g=as.numeric(rnaMat[x[[1]],])
     d=as.numeric(drugMat[x[[2]],])
 
     na1=intersect(which(!is.na(g)),which(!is.nan(g)))
     na2=intersect(which(!is.na(d)),which(!is.nan(d)))
+    try(ret$Overlap<-length(intersect(na1,na2)))
 
-    ret=list(Pearson=NA,fisherZ=NA,Overlap=length(intersect(na1,na2)))
     try(ret$Pearson<-stats::cor(g,d,use='p'))
     try(ret$fisherZ<-fzCor(g,d))
     return(ret)
-  })
+  },rnaMat,drugMat)
 
   full.res=data.frame(do.call('rbind',gdc),do.call('rbind',res))
+ 
   full.res$fisherZ<-as.numeric(full.res$fisherZ)
   full.res$Overlap<-as.numeric(full.res$Overlap)
   full.res$Pearson<-as.numeric(full.res$Pearson)
