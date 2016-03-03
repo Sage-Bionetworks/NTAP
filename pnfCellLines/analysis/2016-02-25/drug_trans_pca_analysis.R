@@ -18,7 +18,12 @@ do.pc<-function(mat){
   pcp
 }
 
-
+#' Compute correlation between two PCA options derived from prcomp
+#' @param pca1 first PC object
+#' @param pca2
+#' @param names1 descriptor of first object
+#' @param names2 descriptor of secon object
+#' @return matrix of all correlations
 computePCAcor<-function(pca1,pca2,names1,names2){
   min.pc=min(10,min(ncol(pca1$x),ncol(pca2$x)))
   
@@ -33,12 +38,30 @@ computePCAcor<-function(pca1,pca2,names1,names2){
   return(cmat)
 }
 
-computePCAGeneCor<-function(pca1,gene2,names1,names2){
+#'Performs correlation testing between PCA and an arbitrary matrix
+#'assuming both have the same number of columns 
+computePCAMatCor<-function(pca1,mat2,names1,names2){
+  #first just get the variation
+  sd1=pca1$sdev
+  names(sd1)<-colnames(pca1$x)
   
+  over=intersect(rownames(pca1$x),colnames(mat2))
+  #now compute the correlations
+  cmat=cor(pca1$x[over,],t(mat2[,over]))
+  cmat[which(is.na(cmat))]<-0.0
+  
+  #plot correlations of first two components
+  high.cor=union(which(abs(cmat[1,])>0.8),which(abs(cmat[2,])>0.8))
+  plot(cmat[1,],cmat[2,],
+       main=paste(names1,'PCs 1 vs 2 correlated with',names2),
+       xlab='PC1',ylab='PC2')
+  
+  return(cmat)
 }
 
+#we want to correlate drug response with gene expression
 genCodeMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE,byGene=TRUE)
-
+genePathMat <- read.table(synGet('syn5689231')@filePath)
 ncatsMat<-getValueForAllCells("FAUC")
 ncatsMat[which(is.na(ncatsMat),arr.ind=TRUE)]<-0.0
 ncatsReMat=getRecalculatedAUCMatrix()
@@ -49,76 +72,48 @@ names(ncats.genotype)<-ncats.cells
 
 rna.pc=do.pc(genCodeMat[,ncats.cells])
 ncats.pc=do.pc(ncatsMat[,ncats.cells])
-computePCAcor(rna.pc,ncats.pc,'RNA','NCATS')
 
-png('PCA_plots_of_RNASeq.png')
-p1=ggbiplot(rna.pc,var.axes=F,scale = 0,labels=ncats.cells,choices=1:2,groups=ncats.genotype)+ggtitle('RNA PC1,2')
-print(p1)
-dev.off()
-png("PCA_plots_of_NCATS.png")
-p2=ggbiplot(ncats.pc,var.axes=F,scale = 0,labels=ncats.cells,choices=2:1,groups=ncats.genotype)+ggtitle('NCATS PC2,1')
-print(p2)
-dev.off()
+targs<-ncatsDrugTargets()
+tvals=as.character(targs$Target)
+names(tvals)<-targs$Drug
+
+c1=computePCAMatCor(rna.pc,ncatsMat,'RNA','NCATS')
+
+sset=colnames(c1)[grep('inib',colnames(c1))]
+
+pheatmap(c1[,sset],annotation_col = data.frame(Target=tvals[sset]),cluster_rows = F,filename='RNAPcsVsDrugSubset.png')
+
+c2=computePCAMatCor(ncats.pc,genCodeMat,'NCATS','RNA')
+dt=which(colnames(c2)%in%targs$Target)
+tcounts=as.numeric(table(targs$Target))
+names(tcounts)<-names(table(targs$Target))
+dt=intersect(names(sort(tcounts)),colnames(c2))
+
+pheatmap(t(c2[,dt]),cluster_cols = F,cluster_rows = F,cellwidth=10,cellheight=10,
+         annotation_row = data.frame(NumDrugs=tcounts),
+         filename='drugTargetsVsDrugPCs.png')
+
+ddt=intersect(names(sort(tcounts[which(tcounts>5)])),colnames(c2))
+pheatmap(t(c2[,ddt]),cluster_cols = F,cluster_rows = F,cellwidth=10,cellheight=10,
+         annotation_row = data.frame(NumDrugs=tcounts),
+         filename='fiveOrMoredrugTargetsVsDrugPCs.png')
 
 ##now do ncats rescored
 ncatsReMat[which(is.na(ncatsReMat),arr.ind=T)]<-0.0
 ncatsr.pc=do.pc(ncatsReMat[,ncats.cells])
 
-computePCAcor(rna.pc,ncatsr.pc,'RNA','NCATS_rescored')
-
-png("PCA_plots_of_NCATS_rescored.png")
-p2=ggbiplot(ncatsr.pc,var.axes=F,scale = 0,labels=ncats.cells,choices=2:1,groups=ncats.genotype)+ggtitle('NCATS Rescored PC2,1')
-print(p2)
-dev.off()
-
-#but also compare to ctrp
-source("../../bin/ctrpSingleAgentScreens.R")
-source("../../bin/ccleData.R")
-
-ctrpMat=as.data.frame(getCtrpScreensAsMatrix())
-ctrpMat[which(is.na(ctrpMat),arr.ind=T)]<-0.0
-
-ccle.tpm<-getCCLEDataTPM(removeDupes=TRUE)
-
-com.cells=intersect(colnames(ctrpMat),colnames(ccle.tpm))
-
-
-ccle.pc=do.pc(ccle.tpm[,com.cells])
-ctrp.pc=do.pc(ctrpMat[,com.cells])
-
-computePCAcor(ccle.pc,ctrp.pc,'CCLE','CTRP')
+#computePCAGenecor(rna.pc,ncatsr.pc,'RNA','NCATS_rescored')
 
 #now do biplots
 
-#also get re-normalized CTRP
-ctrpReMat<-ctrpDoseResponseCurve(FALSE,TRUE)
-ctrpReMat[which(is.na(ctrpReMat),arr.ind=T)]<-0.0
-ctrpr.pc=do.pc(ctrpReMat[,com.cells])
-computePCAcor(ccle.pc,ctrpr.pc,'CCLE','CTRP_rescored')
 
-
-png('PCA_plots_of_CCLE_RNASeq.png')
-p1=ggbiplot(ccle.pc,var.axes=F,scale = 0,labels=com.cells,choices=1:2)+ggtitle('CCLE PC1,2')
-print(p1)
-dev.off()
-
-png('PCA_plots_of_CTRP.png')
-p1=ggbiplot(ctrp.pc,var.axes=F,scale = 0,labels=com.cells,choices=c(4,1))+ggtitle('CCLE PC4,1')
-print(p1)
-dev.off()
-
-png('PCA_plots_of_CTRP_rescored.png')
-p1=ggbiplot(ctrpr.pc,var.axes=F,scale = 0,labels=com.cells,choices=c(4,1))+ggtitle('CCLE PC4,1')
-print(p1)
-dev.off()
-
-this.script="https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-24/drug_trans_pca_analysis.R"
+this.script="https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-25/drug_trans_pca_analysis.R"
 
 for(file in list.files('.'))
   if(length(grep('png',file))>0){
-    f=File(file,parentId='syn5685756')
-    synStore(f,activityName='Princicpal Component Analysis and comparison',
-             used=list(list(url=this.script,wasExecuted=TRUE)))
+#    f=File(file,parentId='')
+#    synStore(f,activityName='PCA correlation',
+#             used=list(list(url=this.script,wasExecuted=TRUE)))
   }
     
 

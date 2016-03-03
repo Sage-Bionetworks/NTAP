@@ -7,6 +7,7 @@ source('../../bin/RNASeqData.R')
 library(data.table)
 library(GSEABase)
 library(GSVAdata)
+library(pheatmap)
 #cut and paste from vignette
 #cache(leukemia_es <- gsva(leukemia_filtered_eset, c2BroadSets,
 #                            +                            min.sz=10, max.sz=500, verbose=TRUE)$es.obs,
@@ -39,14 +40,14 @@ write.table(path.bootstrap,'cellLineBroadPath1000BootstrapPvals.tab',sep='\t')
 
 
 #let's cluster, see how that goes? 
-res=es$es.obs
+res=path.vals
 plot(hclust(as.dist(1-cor(res)),method='ward.D2'))
-
+colnames(res)[1]="ipNF05.5 (mixed clone)" 
+colnames(res)[11]="ipNF05.5 (single clone)"
 
 genotype=samp.mappings[match(colnames(res),samp.mappings[,1]),4]
 names(genotype)<-colnames(res)
 
-res<-es$es.obs
 vars<-apply(res,1,var,na.rm=T)
 mostvar<-res[order(vars,decreasing=T)[1:100],]
 #names(pats)<-gsub('CT0*','Patient',rna.annot$synapseId)
@@ -77,5 +78,5 @@ pheatmap(sig,cellheight=10,cellwidth=10,annotation_col=data.frame(Genotype=genot
 for(file in c('cellLineBroadPathEnrich.tab','sigDiff_HomoZ_Pathways_GSVA.png','cellLineBroadPath1000BootstrapPvals.tab','mostVariablePathways_GSVA.png','leastVariablePathways_GSVA.png')){
   sf=File(file,parentId=synid)
   synStore(sf,activityName='GSVA enrichment analysis',
-           used=list(list(url='',wasExecuted=TRUE)))
+           used=list(list(url='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-25/evalRnaUsingGSVA.R',wasExecuted=TRUE)))
 }

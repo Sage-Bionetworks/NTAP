@@ -6,7 +6,15 @@ source('../../bin/CNVData.R')
 source('../../bin/RNASeqData.R')
 library(ggplot2)
 
-##first compare drug sensitivity data with RNA/CNV
+#'Basic correlation analysis comparing individual gene expression with 
+#'drug value of interest (e.g. MAXR, FAUC)
+#'@param
+#'@param
+#'@param
+#'@param
+#'@param
+#'@param
+#'@param
 drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
                   collapseAllCounts=FALSE,proteinCoding=FALSE,qthresh=0.1,
                   pthresh=0.001,doPlot=T){
