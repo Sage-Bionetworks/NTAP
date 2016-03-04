@@ -7,10 +7,15 @@ synapseLogin()
 ##this function will download and construct the data frame used to build
 ##the sleuth object
 ##includes all the variables needed
-buildDiffExDf<-function(){
+#' @param outliers - list of cell line names to expcloe
+buildDiffExDf<-function(outliers=c()){
 
-  allfiles<-synapseQuery("select name,id from entity where parentId=='syn5579785'")
+  allfiles<-synapseQuery("select name,id,sampleName from entity where parentId=='syn5579785'")
   h5files=allfiles[grep('*h5',allfiles[,1]),]
+  
+  ol=which(h5files$entity.sampleName%in%outliers)
+  if(length(ol)>0)
+    h5files=h5files[-ol,]
 
   h5s=lapply(h5files[,2],function(x) synGet(x))
   snames=lapply(h5s,function(x) x@annotations$sampleName)

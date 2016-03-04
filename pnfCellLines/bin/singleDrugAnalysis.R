@@ -10,11 +10,11 @@ script.dir <- dirname(sys.frame(1)$ofile)
 #' @return data frame of Drugs and Cluster to which they are assigned
 getDrugClusters<-function(aucMat,h=4,doubleSigAlpha=NA,doZScore=TRUE){
                                         #now zscore them
-  
+
   ##THIS FUNCTION IS DEPRACATED
   if(!is.na(doubleSigAlpha))
     return( getClusters(aucMat,h,byCol=FALSE,doubleSigAlpha))
-  
+
   if(doZScore){
         zsMat<-apply(aucMat,2,function(x) (x-mean(x,na.rm=T))/sd(x,na.rm=T))
         nz.zs.mat=zsMat
@@ -42,7 +42,7 @@ getDrugClusters<-function(aucMat,h=4,doubleSigAlpha=NA,doZScore=TRUE){
 #' @param doubleSigAlpha - alpha value to use for double sigmoid. if NA, no transform is done
 #' @return data frame of Drugs and Cluster to which they are assigned
 getClusters<-function(aucMat,h=4,k=NA,byCol=FALSE,doubleSigAlpha=NA){
-    
+
     #aucMat=t(aucMat)
                                         #now zscore them
     #  if(doZScore){
@@ -52,14 +52,14 @@ getClusters<-function(aucMat,h=4,k=NA,byCol=FALSE,doubleSigAlpha=NA){
     #  }else{
     #      nz.zs.mat=aucMat
     # }
-  
+
     #always cluster by column, so transpose if necessary
     if(!byCol)
       aucMat=t(aucMat)
-    
+
     ##now establish correlations
     if(is.na(doubleSigAlpha)){
-      corvals=cor(aucMat,use='pairwise.complete.obs')    
+      corvals=cor(aucMat,use='pairwise.complete.obs')
     }else{
       fz.mat=apply(aucMat,2,function(x)
           apply(aucMat,2,function(y)
@@ -67,7 +67,7 @@ getClusters<-function(aucMat,h=4,k=NA,byCol=FALSE,doubleSigAlpha=NA){
       rownames(fz.mat)<-colnames(fz.mat)<-colnames(aucMat)
       corvals=dSigTransform(fz.mat,alpha=doubleSigAlpha)
     }
-    
+
 
     corvals[which(is.na(corvals),arr.ind=T)]<-0.0
 
@@ -88,14 +88,14 @@ getClusters<-function(aucMat,h=4,k=NA,byCol=FALSE,doubleSigAlpha=NA){
       return(data.frame(Cell=names(drug.clusters),Cluster=drug.clusters))
     else
       return(data.frame(Drug=names(drug.clusters),Cluster=drug.clusters))
-    
+
 }
 
 #' Adjusted correlation - does standard pearson with fisher z transform
 #' and a double signmoid transform to enable clustering
 #' @param vec1: first vector
 #' @param vec2: second vector
-#' 
+#'
 fzCor<-function(vec1,vec2){
   ##first collect all measured values
   m.vals=intersect(which(!is.nan(vec1)),which(!is.nan(vec2)))
@@ -146,7 +146,7 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
           data.frame(Drug=rep(x[['Drug']],length(i)),
                      Cluster=rep(x[['Cluster']],length(i)),
                      Target=clusterFeatures[[feature]][i])}))
-        
+
     }else{
         idx=lapply(ndf$Cell,function(x) which(clusterFeatures$Cell==x))
         names(idx)<-ndf$Cell
@@ -155,10 +155,10 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
           data.frame(Drug=rep(x[['Cell']],length(i)),
                      Cluster=rep(x[['Cluster']],length(i)),
                      Target=clusterFeatures[[feature]][i])}))
-        
+
     }
 #    ndf$Target=as.character(clusterFeatures[,feature])[idx]
-       
+
     ndf=ndf[which(!is.na(ndf$Target)),]
     ndf=ndf[which(ndf$Target!=""),]
     print(paste('Altering cluster set from',nrow(clusters),'to',nrow(ndf),'after removing NA and blank values and accounting for multiple drug targets'))
@@ -175,7 +175,7 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
         tc=which(ndf$Target==x[['Target']])
         cc=which(ndf$Cluster==x[['Cluster']])
         paste(ndf$Drug[intersect(tc,cc)],collapse=';')})
-    
+
     pvals=apply(drug.targs,1,function(x){
         over=as.numeric(x[['TimesTargetInCluster']])
         tt=as.numeric(x[['NumDrugsWithTarget']])
@@ -193,7 +193,7 @@ clusterEnrichment<-function(clusters,clusterFeatures,byDrug=TRUE,feature='Target
 #' @param matrix of interest to cluster by column or row
 #' @byCol if true will evaluate columns not rows
 #' @alphas defaults to c(1,5,10,100)
-#' @return 
+#' @return
 testNormalizationParameters<-function(mat,byCol=FALSE,alphas=c(1,5,10,100),prefix=''){
   if(!byCol)
     mat<-t(mat)
@@ -204,11 +204,11 @@ testNormalizationParameters<-function(mat,byCol=FALSE,alphas=c(1,5,10,100),prefi
   pars=alphas
   dsNorms<-lapply(pars,function(x) dSigTransform(fzMat,alpha=x))
   names(dsNorms)<-as.character(pars)
-  
-  
+
+
   ##now compute normalization for all values, and compare
   all.inds=do.call("rbind",lapply(1:nrow(cormat),function(x) cbind(rep(x,nrow(cormat)),1:nrow(cormat))))
-  
+
   all.diffs=t(apply(all.inds,1,function(x){
     #print(paste(rownames(cormat)[x[1]],colnames(cormat)[x[2]]))
     cval=cormat[x[1],x[2]]
@@ -226,16 +226,16 @@ testNormalizationParameters<-function(mat,byCol=FALSE,alphas=c(1,5,10,100),prefi
     ds=unlist(lapply(dsNorms,function(y) y[x[1],x[2]]))
     names(ds)<-paste('doubleSig',pars,sep='_')
     return(c(retvec,ds))}))
-  
+
   df=data.frame(all.diffs)
-  
+
   ##now plot the results
   library(ggplot2)
   p<-ggplot(df,aes(x=Cor,y=FZ+10))+geom_point(aes(colour=Overlap))+scale_y_log10()+scale_colour_gradientn(colours=rainbow(5))
   png(paste(prefix,'pearsonVsFisherZ.png',sep='_'))
   print(p)
   dev.off()
-  
+
   ##ok, so this thing really is weeding out spurious correlations
   ##let's plot the double sigmoid transfer as well
   for(a in alphas){
@@ -246,4 +246,25 @@ testNormalizationParameters<-function(mat,byCol=FALSE,alphas=c(1,5,10,100),prefi
     print(p)
     dev.off()
   }
+}
+
+
+
+#' Check differential auc values between subsets of cells
+#' @param aucMat  - matrix of AUC values to be used as input
+#' @param cellClasses - list of cell classes - two at most, names should match colnames of aucMat
+#'
+aucDifferentialResponse<-function(aucMat,cellClasses){
+    require(limma)
+  #  all.cells=unlist(cellClasses)
+
+    facts=factor(unlist(cellClasses))
+    design= model.matrix(~facts)
+    levs=levels(facts)
+
+    colnames(design)=levs
+    fit <- lmFit(aucMat, design)
+    fit <- eBayes(fit)
+    tab <- topTable(fit, coef=levs[length(levs)],number=Inf)
+    return(tab)
 }
