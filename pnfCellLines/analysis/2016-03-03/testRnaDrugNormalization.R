@@ -3,7 +3,7 @@ source("../../bin/crossDataComps.R")
 
 alpha.pars=c(1,4,5,10,100,1000)
 
-this.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-22/testRnaDrugNormalization.R'
+this.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-03-03/testRnaDrugNormalization.R'
 
 ###build functions to identify ideal ALPHA parameter for transform
 #' find best alpha parameter in CTD2/CCLE data
@@ -50,14 +50,17 @@ testNcatsNorm<-function(numSamps=NA){
   drugMat<-getValueForAllCells("FAUC")
   remat=getRecalculatedAUCMatrix()
  # for(ap in alpha.pars){
-  r=lapply(alpha.pars,function(ap){
-    res=computeDrugRnaNormalizedCor(drugMat=drugMat,rnaMat=genCodeMat,prefix='ncatsOriginal',sampleCombos=numSamps,alpha=ap)
-    for(f in res){
-      sf=File(f,parentId='syn5679539')
-      synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
-    }
+ if(require(parallel))
+     lapply <- function(x,...) mclapply(x,mc.cores=6,...)
 
-    res=computeDrugRnaNormalizedCor(drugMat=reMat,rnaMat=genCodeMat,prefix='ncatsRescored',sampleCombos=numSamps,alpha=ap)
+  r=lapply(alpha.pars,function(ap){
+  #  res=computeDrugRnaNormalizedCor(drugMat=drugMat,rnaMat=genCodeMat,prefix='ncatsOriginal',sampleCombos=numSamps,alpha=ap)
+ #   for(f in res){
+ #     sf=File(f,parentId='syn5679539')
+ #     synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
+ #   }
+
+    res=computeDrugRnaNormalizedCor(drugMat=remat,rnaMat=genCodeMat,prefix='ncatsRescored',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
       synStore(sf,used=list(list(url=this.script,wasExecuted=TRUE)))
