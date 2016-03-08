@@ -95,3 +95,24 @@ ctrpDrugTargets<-function(){
     tdat=do.call("rbind",tlist)
     return(tdat)
 }
+
+
+getMSSMprocessedMutationCalls<-function(){
+  ##downlods file from synapse, then returns matrix
+  tab=read.table(synGet('syn5706505')@filePath,header=T,comment='',as.is=T)
+  mat=tab[-c(1:2),-c(1:3)]
+  mat<-apply(mat,2,function(x) as.numeric(unlist(x)))
+  rownames(mat)<-tab[-c(1:2),1]
+  return(mat)
+  
+}
+
+getMSSMTissueOrigin<-function(){
+  tab=read.table(synGet('syn5706505')@filePath,header=T,comment='',as.is=T)
+  mat=tab[1,-c(1:3)]
+  #names(mat)<-colnames(mat)
+  #mat<-apply(mat,2,function(x) as.numeric(unlist(x)))
+  #rownames(mat)<-tab[-c(1:2),1]
+  return(mat)
+  
+}
