@@ -58,5 +58,5 @@ comb.mat=cbind(ncmat[drug.matches,],
                drugmat[match(names(drug.matches),rownames(drugmat)),])
 
 write.table(comb.mat,"ncatsCtrpCombinedMatrix_nplr_recalculated.txt")
-synStore(File("",parentId=pid),used=list(list(url='',wasExecuted=TRUE)))
+synStore(File("ncatsCtrpCombinedMatrix_nplr_recalculated.txt",parentId=pid),used=list(list(url='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-03-08/combineSingleDrugScreens.R',wasExecuted=TRUE)))
 

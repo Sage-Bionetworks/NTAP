@@ -254,15 +254,20 @@ testNormalizationParameters<-function(mat,byCol=FALSE,alphas=c(1,5,10,100),prefi
 #' @param aucMat  - matrix of AUC values to be used as input
 #' @param cellClasses - list of cell classes - two at most, names should match colnames of aucMat
 #'
-aucDifferentialResponse<-function(aucMat,cellClasses){
+aucDifferentialResponse<-function(aucMat,cellClasses,otherFactors=NULL){
     require(limma)
   #  all.cells=unlist(cellClasses)
 
     facts=factor(unlist(cellClasses))
-    design= model.matrix(~facts)
     levs=levels(facts)
-
-    colnames(design)=levs
+    design= model.matrix(~facts)
+    
+    if(!is.null(otherFactors)){
+      facts=cbind(Class=facts,otherFactors)
+      design= model.matrix(~.,facts)
+      
+    }
+    colnames(design)[1:2]=levs
     fit <- lmFit(aucMat, design)
     fit <- eBayes(fit)
     tab <- topTable(fit, coef=levs[length(levs)],number=Inf)
