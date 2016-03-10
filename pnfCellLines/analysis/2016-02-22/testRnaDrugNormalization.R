@@ -1,6 +1,6 @@
 source("../../bin/singleDrugAnalysis.R")
 source("../../bin/crossDataComps.R")
-
+require(parallel)
 alpha.pars=c(1,4,5,10,100,1000)
 
 this.script='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-22/testRnaDrugNormalization.R'
@@ -20,7 +20,7 @@ testCTD2Norm<-function(numSamps=NA){
   reMat<-ctrpDoseResponseCurve(FALSE,TRUE)
  
   #for(ap in alpha.pars){
-  r=lapply(alpha.pars[-1],function(ap){
+  r=mclapply(alpha.pars[-1],function(ap){
 
     res=computeDrugRnaNormalizedCor(drugMat=ctrpMat,rnaMat=ccle.tpm,prefix='ctrpOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
@@ -50,7 +50,7 @@ testNcatsNorm<-function(numSamps=NA){
   drugMat<-getValueForAllCells("FAUC")
   remat=getRecalculatedAUCMatrix()
  # for(ap in alpha.pars){
-  r=lapply(alpha.pars,function(ap){
+  r=mclapply(alpha.pars,function(ap){
     res=computeDrugRnaNormalizedCor(drugMat=drugMat,rnaMat=genCodeMat,prefix='ncatsOriginal',sampleCombos=numSamps,alpha=ap)
     for(f in res){
       sf=File(f,parentId='syn5679539')
