@@ -66,5 +66,5 @@ testNcatsNorm<-function(numSamps=NA){
 }
 
 
-#testCTD2Norm(1000000)
-testNcatsNorm(1000000)
+testCTD2Norm(500000)
+testNcatsNorm(500000)

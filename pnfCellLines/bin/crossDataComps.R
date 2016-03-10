@@ -181,7 +181,7 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
   full.res$Overlap<-as.numeric(full.res$Overlap)
   full.res$Pearson<-as.numeric(full.res$Pearson)
 
-  full.res$doubleSigma=dSigTransform(as.numeric(full.res$fisherZ))
+  full.res$doubleSigma=dSigTransform(as.numeric(full.res$fisherZ),alpha=alpha)
 
   require(ggplot2)
 
