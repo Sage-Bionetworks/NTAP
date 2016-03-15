@@ -6,7 +6,7 @@ source('../../bin/CNVData.R')
 source('../../bin/RNASeqData.R')
 library(ggplot2)
 
-#'Basic correlation analysis comparing individual gene expression with 
+#'Basic correlation analysis comparing individual gene expression with
 #'drug value of interest (e.g. MAXR, FAUC)
 #'@param
 #'@param
@@ -124,7 +124,7 @@ drugRna<-function(valname='MAXR',gene='NF1',useGencode=F,doLog=F,
 #'@param sampleCombos - if sampling from all possible combos, provide number here
 #'@alpha alpha parameter to use as double sigma input
 #'@return list of files summarizing results
-computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,alpha=2.5){
+computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,alpha=2.5,doPlot=TRUE){
 # if(require(parallel))
   #  lapply<-function(x,...) mclapply(x,...)
 
@@ -162,7 +162,7 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
   res=lapply(gdc,function(x,rnaMat,drugMat){
     #print(paste(x,collapse=','))
     ret=list(Pearson=NA,fisherZ=NA,Overlap=NA)
-    
+
     g=as.numeric(rnaMat[x[[1]],])
     d=as.numeric(drugMat[x[[2]],])
 
@@ -176,27 +176,28 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
   },rnaMat,drugMat)
 
   full.res=data.frame(do.call('rbind',gdc),do.call('rbind',res))
- 
+
   full.res$fisherZ<-as.numeric(full.res$fisherZ)
   full.res$Overlap<-as.numeric(full.res$Overlap)
   full.res$Pearson<-as.numeric(full.res$Pearson)
 
   full.res$doubleSigma=dSigTransform(as.numeric(full.res$fisherZ),alpha=alpha)
 
-  require(ggplot2)
+  if(doPlot){
+      require(ggplot2)
 
   ##plot
 
-  p<-ggplot(full.res)+geom_point(mapping=aes(x=Pearson,y=doubleSigma,colour=Overlap),stat='identity')
-  p<-p+scale_colour_gradientn(colours=rainbow(5))+ggtitle(paste('Pearson R vs. transformed (alpha=',alpha,') \nfor',ifelse(is.na(sampleCombos),'all',sampleCombos),prefix,'\nDrug-Transcript Combinations'))
+      p<-ggplot(full.res)+geom_point(mapping=aes(x=Pearson,y=doubleSigma,colour=Overlap),stat='identity')
+      p<-p+scale_colour_gradientn(colours=rainbow(5))+ggtitle(paste('Pearson R vs. transformed (alpha=',alpha,') \nfor',ifelse(is.na(sampleCombos),'all',sampleCombos),prefix,'\nDrug-Transcript Combinations'))
 
-  basename=paste(prefix,'alpha',alpha,'pearsonVsDoubleSig',ifelse(is.na(sampleCombos),'all',sampleCombos),'Pairs',sep='_')
+      basename=paste(prefix,'alpha',alpha,'pearsonVsDoubleSig',ifelse(is.na(sampleCombos),'all',sampleCombos),'Pairs',sep='_')
 
-  pngname=paste(basename,'pdf',sep='.')
-  pdf(pngname)
-  print(p)
-  dev.off()
-
+      pngname=paste(basename,'pdf',sep='.')
+      pdf(pngname)
+      print(p)
+      dev.off()
+  }
   #write to file
   tabname=paste(basename,'tab',sep='.')
   write.table(full.res,file=tabname,row.names=F,col.names=T,sep='\t')
