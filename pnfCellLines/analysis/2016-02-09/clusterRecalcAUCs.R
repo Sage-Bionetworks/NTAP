@@ -1,30 +1,35 @@
 ##compare drug data
 
 require(synapseClient)
+require(reshape2)
+synapseLogin()
+library(pheatmap)
 ncats.recalc=read.table(synGet('syn5637634')@filePath,header=T)
 ctp.recalc=read.table(synGet('syn5622708')@filePath,header=T)
 
 ##now do the matching again
 nt.drugs<-unique(ncats.recalc$Drug)
-drug_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_compound.txt'
-drug_dat=read.table(drug_data,sep='\t',header=T,fill=T,quote='"')
-
-##cell line infor
-ccl_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_experiment.txt'
-ccl_dat=read.table(ccl_data,header=T,sep='\t')
-
-ccl_metadata<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_cell_line.txt'
-ccl_metadat<-read.table(ccl_metadata,sep='\t',header=T,as.is=T)
-
-ccl=data.frame(Exp=ccl_dat$experiment_id,
-               CCL_Id=ccl_dat$master_ccl_id,
-               CCL_Name=ccl_metadat$ccl_name[match(ccl_dat$master_ccl_id,ccl_metadat$master_ccl_id)])
+# 
+# drug_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_compound.txt'
+# drug_dat=read.table(drug_data,sep='\t',header=T,fill=T,quote='"')
+# 
+# ##cell line infor
+# ccl_data='../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_experiment.txt'
+# ccl_dat=read.table(ccl_data,header=T,sep='\t')
+# 
+# ccl_metadata<-'../../../CTRPv2.0_2015_ctd2_ExpandedDataset/v20.meta.per_cell_line.txt'
+# ccl_metadat<-read.table(ccl_metadata,sep='\t',header=T,as.is=T)
+# 
+# ccl=data.frame(Exp=ccl_dat$experiment_id,
+#                CCL_Id=ccl_dat$master_ccl_id,
+#                CCL_Name=ccl_metadat$ccl_name[match(ccl_dat$master_ccl_id,ccl_metadat$master_ccl_id)])
 
 require(reshape2)
 ctp.recalc$DrugName=drug_dat$cpd_name[match(ctp.recalc$master_cpd_id,drug_dat$master_cpd_id)]
 ctp.recalc$CellLine=ccl$CCL_Name[match(ctp.recalc$experiment_id,ccl$Exp)]
 
 drugmat=acast(ctp.recalc,DrugName~CellLine,value.var='unlist.res.auc.',fun.aggregate = mean)
+ncats.mat<-acast(ncats.recalc,Drug~Cell,value.var='AUC',fun.aggregat = mean)
 
 matched.drug.names=sapply(rownames(drugmat),function(x){
   mval=NA
@@ -48,8 +53,9 @@ drug.matches=unlist(matched.drug.names)
 print(paste("Found",length(drug.matches),'drugs that are found in both NCATS and CCL screens'))
 #create a combined matrix
 
-ncmat<-t(sapply(nt.drugs,function(x) colSums(ncats.recalc[which(ncats.recalc$Drug==x),-1])))
-rownames(ncmat)<-nt.drugs
+#ncmat<-t(sapply(nt.drugs,function(x) colSums(ncats.mat[which(ncats.recalc$Drug==x),-1])))
+#rownames(ncmat)<-nt.drugs
+ncmat<-ncats.mat[nt.drugs,]
 
 comb.mat=cbind(ncmat[drug.matches,],
                drugmat[match(names(drug.matches),rownames(drugmat)),])
@@ -100,5 +106,5 @@ pheatmap(comb.mat[,top25],filename='recalcAucClustersTop25spearman.png',
 pngs=list.files('.')[grep('png',list.files('.'))]
 for(p in pngs){
   sf=File(p,parentId='syn5763353')
-  synStore(sf,used=list(list(url='',wasExecuted=TRUE)))
+  synStore(sf,used=list(list(url='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-02-09/clusterRecalcAUCs.R',wasExecuted=TRUE)))
 }

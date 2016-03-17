@@ -80,12 +80,12 @@ doCorPlots<-function(df,prefix=''){
 
 
 ##add method to do some statistics on the correlations
-doCorStats<-function(df,prefix='',minCor=0.25){
+doCorStats<-function(df,prefix='',minCor=0.6){
   #first compute correlation
     tcor=cor(df)
   ##select those stats that are of interest:
   mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
-  sel.vals<-tcor[mvals,]
+  sel.vals<-tcor#tcor[mvals,]
   write.table(sel.vals,paste(prefix,'pearsonCors.tsv',sep=''),sep='\t')
   
   mmat<-df[,colnames(sel.vals)[unique(which(sel.vals>minCor,arr.ind=T)[,2])]]
@@ -93,8 +93,8 @@ doCorStats<-function(df,prefix='',minCor=0.25){
   
   #second: spearman
   tcor=cor(df,method='spearman')
-  mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
-  sel.vals<-tcor[mvals,]
+  #mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
+  sel.vals<-tcor#[mvals,]
   
   write.table(sel.vals,paste(prefix,'spearmanCors.tsv',sep=''),sep='\t')
   mmat<-df[,colnames(sel.vals)[unique(which(sel.vals>minCor,arr.ind=T)[,2])]]
@@ -107,9 +107,9 @@ doCorStats<-function(df,prefix='',minCor=0.25){
   qnormed=normalize.quantiles(as.matrix(df))
   colnames(qnormed)<-colnames(df)
   tcor=cor(qnormed)
-  mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
+#  mvals=union(grep("ip",rownames(tcor)),grep('NF',rownames(tcor)))
 
-  sel.vals<-tcor[mvals,]
+  sel.vals<-tcor#[mvals,]
   write.table(sel.vals,paste(prefix,'qnormedPearson.tsv',sep=''),sep='\t')
   mmat<-df[,colnames(sel.vals)[unique(which(sel.vals>minCor,arr.ind=T)[,2])]]
   doCorPlots(mmat,paste(prefix,'minQnormedPearsonCor',minCor,sep=''))              
@@ -119,3 +119,7 @@ doCorStats<-function(df,prefix='',minCor=0.25){
 ##not looking great
 doCorStats(all.tpms,'tpm')
 doCorStats(all.ecounts,'estCounts')
+
+for(file in list.files('.')[grep('tsv',list.files('.'))])
+  synStore(File(file,parentId='syn5594111'),used=list(list(url='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-01-19/ccleComp.R',wasExecuted=TRUE)))
+
