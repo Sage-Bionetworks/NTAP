@@ -19,3 +19,8 @@ drugGene('TAUC','NF1')
 drugGene('TAUC','BRAF')
 drugGene('TAUC','EGFR')
 
+drugGene('FAUC','KRAS')
+drugGene('FAUC','NF1')
+drugGene('FAUC','BRAF')
+drugGene('FAUC','EGFR')
+

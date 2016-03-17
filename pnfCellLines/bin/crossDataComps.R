@@ -2,8 +2,10 @@
 
 
 source("../../bin/drugSensData.R")
-source('../../bin/CNVData.R')
+#source('../../bin/CNVData.R')
 source('../../bin/RNASeqData.R')
+source("../../bin/singleDrugAnalysis.R")
+
 library(ggplot2)
 
 #'Basic correlation analysis comparing individual gene expression with
@@ -208,7 +210,7 @@ computeDrugRnaNormalizedCor<-function(drugMat,rnaMat,prefix='',sampleCombos=NA,a
 
 ##now collapse by gene
 ##first compare drug sensitivity data with RNA/CNV
-drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
+drugGene<-function(valname='MAXR',gene='NF1',useGencode=F,by.pval=TRUE){
   if(useGencode)
     rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
   else
@@ -221,20 +223,28 @@ drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
   nzvMat=rnaMat[-rnavars,]
   nf1Mat=nzvMat[grep(paste("^",gene,".EN",sep=''),rownames(nzvMat)),]
   geneSums<-colSums(nf1Mat[,cells])
+  print(geneSums)
   #all.cors=apply(nf1Mat[,cells],1,function(x){
   geneCor<-apply(drugMat[,cells],1,function(y)
       cor(geneSums,y,use='pairwise.complete.obs'))
 
   ##all p-values, since sample size is so darn low
   #all.cor.ps=apply(nf1Mat[,cells],1,function(x){
-  genePs<-apply(drugMat[,cells],1,function(y)
-      cor.test(geneSums,y,use='pairwise.complete.obs')$p.value)
+  genePs<-apply(drugMat[,cells],1,function(y){
+      p<-1.0
+      try(p<-cor.test(geneSums,y,use='pairwise.complete.obs')$p.value)
+      return(p)})
 
   p.corrected<-p.adjust(genePs)#apply(all.cor.ps,2,p.adjust)
 
-  sigs=which(p.corrected<0.1)
-  if(length(sigs)==0)
-    return(NULL)
+  if(by.pval){
+    sigs=which(p.corrected<0.1)
+    if(length(sigs)==0)
+      sigs=which(genePs<0.01)
+  }
+  else{
+    sigs=which((rank(abs(geneCor))/length(geneCor))>0.99)
+  }
   ##now can we plot those values?
   #dvals=unique(sigs[,1])
   print(paste('Found',length(sigs),'drugs that correlate with',gene,'expression'))
@@ -243,7 +253,6 @@ drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
   drugname<-c()
   trans<-c()
   for(r in sigs){
-    #
     drug<-c(drug,drugMat[r,cells])
     drugname=c(drugname,rep(rownames(drugMat)[r],length(cells)))
     exp=c(exp,geneSums)#unlist(nf1Mat[r[2],cells]))
@@ -251,11 +260,84 @@ drugGene<-function(valname='MAXR',gene='NF1',useGencode=F){
   }
   df=data.frame(DrugVals=drug,RNAExpr=exp,DrugName=drugname,Transcript=trans)
   #names(df)[1]=paste('Drug',valname,'Value',sep='')
-  png(paste(valname,'CorrelatedWith',gene,'Geneexpression.png',sep=''))
+  png(paste(valname,'CorrelatedWith',gene,'Geneexpression',ifelse(by.pval,'','top1Percent'),'.png',sep=''))
   p<-ggplot(df,aes(x=RNAExpr,y=DrugVals))+geom_point(aes(colour=DrugName,shape=Transcript))+geom_line(aes(colour=DrugName,shape=Transcript))
-  p<-p+ggtitle(paste(gene,'Expression for',valname,'values, corrected p<0.1'))
+  p<-p+ggtitle(paste(gene,'Expression for',valname,'values, ',ifelse(by.pval,'corrected p<0.1','top1%')))
   print(p)
   dev.off()
+  return(df)
+}
+
+
+ds.dist<-read.table(synGet('syn5705377')@filePath,header=T)
+qvals <-quantile(ds.dist$doubleSigma,c(0.005,0.995),na.rm=T)
+z.vals<-quantile(as.numeric(as.character(ds.dist$fisherZ)),c(0.005,0.995),na.rm=T)
+##now collapse by gene
+##first compare drug sensitivity data with RNA/CNV
+drugGeneNorm<-function(valname='MAXR',gene='NF1',useGencode=F,by.pval=TRUE){
+  if(useGencode)
+    rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
+  else
+    rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
+  drugMat<-getValueForAllCells(valname)
+  targs<-ncatsDrugTargets()
+    
+
+  ##now look for drug/rna correlations!
+  cells=intersect(colnames(drugMat),colnames(rnaMat))
+  rnavars<-which(apply(rnaMat[,cells],1,var)==0)
+  nzvMat=rnaMat[-rnavars,]
+  gvals<-grep(paste("^",gene,".EN",sep=''),rownames(nzvMat))
+  if(length(gvals)==0)
+    return(data.frame(DrugVals=NA,RNAExpr=NA,DrugName=NA,Transcript=NA))
+
+  nf1Mat=nzvMat[gvals,]
+  geneSums<-colSums(nf1Mat[,cells])
+ # print(geneSums)
+  #all.cors=apply(nf1Mat[,cells],1,function(x){
+  geneCor<-data.frame(do.call('rbind',lapply(rownames(drugMat),function(y){
+        c(Drug=y,Gene=gene,
+          R=cor(geneSums,drugMat[y,cells],use='pairwise.complete.obs'),
+                    FZ=fzCor(geneSums,drugMat[y,cells]))})))
+        
+  geneCor$dsTrans=dSigTransform(as.numeric(as.character(geneCor$FZ)),alpha=1)
+  ##all p-values, since sample size is so darn low
+  #all.cor.ps=apply(nf1Mat[,cells],1,function(x){
+  navals=which(is.na(geneCor$dsTrans))
+  if(length(navals)>0)
+    geneCor=geneCor[-navals,]
+  
+  ##first filter by quantile
+  sigs=c(which(geneCor$dsTrans<qvals[1]),which(geneCor$dsTrans>qvals[2]))
+  sigs1=c(which(as.numeric(as.character(geneCor$FZ))<z.vals[1]),
+         which(as.numeric(as.character(geneCor$FZ))>z.vals[2]))
+  sigs2=which((rank(abs(geneCor$dsTrans))/nrow(geneCor))>0.995)
+  
+  if(length(sigs1)>10)
+    sigs<-intersect(sigs1,sigs2)
+  else
+    sigs<-sigs1
+  ##now can we plot those values?
+  #dvals=unique(sigs[,1])
+  #print(paste('Found',length(sigs),'drugs that correlate with',gene,'expression'))
+  drug<-c()
+  exp<-c()
+  drugname<-c()
+  trans<-c()
+  for(r in sigs){
+    drug<-c(drug,drugMat[r,cells])
+    drugname=c(drugname,rep(paste(rownames(drugMat)[r],' (',targs$Target[match(rownames(drugMat)[r],targs$Drug)],')',sep=''),length(cells)))
+    exp=c(exp,geneSums)#unlist(nf1Mat[r[2],cells]))
+    trans=c(trans,rep(gene,length(cells)))
+  }
+  df=data.frame(DrugVals=drug,RNAExpr=exp,DrugName=drugname,Transcript=trans)
+  #names(df)[1]=paste('Drug',valname,'Value',sep='')
+  png(paste(valname,'CorrelatedWith',gene,'Geneexpression',ifelse(by.pval,'','top1Percent'),'.png',sep=''))
+  p<-ggplot(df,aes(x=RNAExpr,y=DrugVals))+geom_point(aes(colour=DrugName,shape=Transcript))+geom_line(aes(colour=DrugName,shape=Transcript))
+  p<-p+ggtitle(paste(gene,'Expression for',valname,'values, ',ifelse(by.pval,'corrected p<0.1','top1%')))
+  print(p)
+  dev.off()
+  return(df)
 }
 
 
