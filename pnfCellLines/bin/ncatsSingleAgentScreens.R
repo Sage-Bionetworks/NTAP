@@ -8,7 +8,6 @@ library(pheatmap)
 synapseLogin()
 fileparent='syn5522627'
 
-
 ##download files
 headerfile='syn5522652'
 qr<-synapseQuery(paste("select * from entity where parentId=='",fileparent,"'",sep=''))

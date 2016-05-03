@@ -8,6 +8,31 @@ source("../../bin/singleDrugAnalysis.R")
 
 library(ggplot2)
 
+drugPlsr<-function(valname='MAXR',useGencode=T,collapseAllCounts=TRUE,proteinCoding=TRUE){
+  require(pls)
+  if(useGencode)
+    rnaMat<-rnaGencodeKallistoMatrix(useCellNames=TRUE)
+  else
+    rnaMat<-rnaKallistoMatrix(useCellNames=TRUE)
+  
+  ##get genotype
+  gt.cell<-synTableQuery('SELECT "Sample Name","Sample Genotype" FROM syn5014742')@values
+  
+  drugMat<-getValueForAllCells(valname)
+  ##now look for drug/rna correlations!
+  cells=intersect(colnames(drugMat),colnames(rnaMat))
+  
+  rnaMat<-rnaMat[,cells]
+  drugMat<-drugMat[,cells]
+  
+  rnavars<-which(apply(rnaMat,1,var)==0)
+  nzvMat=rnaMat[-rnavars,]
+  if(collapseAllCounts)
+    nzvMat<-nzvMat[grep('protein_coding',rownames(nzvMat)),]
+  df=data.frame(t(rbind(drug=x,nzvMat)))  
+  res<-plsr(drug~.,df)
+}
+
 #'Basic correlation analysis comparing individual gene expression with
 #'drug value of interest (e.g. MAXR, FAUC)
 #'@param

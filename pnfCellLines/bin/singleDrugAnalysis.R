@@ -249,6 +249,13 @@ testNormalizationParameters<-function(mat,byCol=FALSE,alphas=c(1,5,10,100),prefi
 }
 
 
+aucPlsr<-function(aucMat,cellClasses,otherFactors=NULL){
+    require(pls)
+  facts=factor(unlist(cellClasses))
+  levs=levels(facts)
+  
+  
+}
 
 #' Check differential auc values between subsets of cells
 #' @param aucMat  - matrix of AUC values to be used as input

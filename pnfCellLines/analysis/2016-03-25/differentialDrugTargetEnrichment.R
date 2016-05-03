@@ -135,9 +135,10 @@ for(val in c("ZSCORE","FAUC","MAXR","LAC50")){
 }
   
 filelist=list.files('.')
+
 filelist=filelist[-grep('differentialDrugTarget',filelist)]
 for(f in filelist){
-  synStore(File(f,parentId=pid),used=list())
+  synStore(File(f,parentId=pid),used=list(list(url='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-03-25/differentialDrugTargetEnrichment.R',wasExecuted=T)))
   
 }
   ####now do it all again for re-calculated matrix
