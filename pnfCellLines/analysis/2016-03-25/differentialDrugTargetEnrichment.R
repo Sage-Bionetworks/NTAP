@@ -113,24 +113,27 @@ for(val in c("ZSCORE","TAUC","MAXR","LAC50")){
   
 
   
-  for(pval in c(0.01,0.005,0.001)){
+  for(pval in c(0.01,0.005)){
 
     sigs=rownames(tab)[which(tab$P.Value<pval)]
+    if(length(sigs)>2){
     sig.enrich=targetEnrichment(sigs)
     all.sigs[[val]]<-list(sigs)
     write.table(sig.enrich,file=paste(val,'EnrichedTargetsFrom_NoHetDistinctAcrossGenotype_p',pval,'.txt',sep=''),row.names=T,col.names=T)
     
     pheatmap(aucMat[sigs,],annotation_row=data.frame(Target=all.targs[sigs]),
            annotation_col=data.frame(Genotype=full.gt),cellwidth=10,cellheight=10,file=paste(val,'ValuesNoHetDistinctAcrossGenotype_p',pval,'.png',sep=''))
-  
+  }
   
     alt.sigs=rownames(tab)[which(alt.tab$P.Value<pval)]
-    alt.sig.enrich=targetEnrichment(sigs)
+   if(length(alt.sigs)>2){
+   alt.sig.enrich=targetEnrichment(sigs)
     write.table(alt.sig.enrich,file=paste(val,'EnrichedTargetsFrom_WithHetDistinctAcrossGenotype_p',pval,'.txt',sep=''))
     het.sigs[[val]]<-list(alt.sigs)
     #write to file
     pheatmap(aucMat[alt.sigs,],annotation_row=data.frame(Target=all.targs[alt.sigs]),
              annotation_col=data.frame(Genotype=full.gt),cellwidth=10,cellheight=10,file=paste(val,'ValuesWithHetDistinctAcrossGenotype_p',pval,'.png',sep=''))
+  }
   }
 }
   

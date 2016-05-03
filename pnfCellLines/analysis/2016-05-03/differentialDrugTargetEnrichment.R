@@ -38,7 +38,7 @@ filelist=c()
 
 #now figure out how they compare
 maxrMat<-getValueForAllCells("MAXR")
-aucMat<-getValueForAllCells("FAUC")
+aucMat<-getValueForAllCells("TAUC")
 lac50Mat<-getValueForAllCells("LAC50")
 
 zscore<-function(x){
@@ -90,7 +90,7 @@ for(val in c("ZSCORE","TAUC","MAXR","LAC50")){
   alt.auc[is.na(aucMat)]<-mean(aucMat,na.rm=T)
 
   ##remove het for this round
-  alt.auc=alt.auc[,-c(6,9,10)]
+  alt.auc=alt.auc[,-6]
   alt.gt=full.gt[colnames(alt.auc)]
 
   #compute differential
