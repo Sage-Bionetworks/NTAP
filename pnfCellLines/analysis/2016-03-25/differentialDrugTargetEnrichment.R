@@ -29,7 +29,7 @@ filelist=c()
 ##first get distributiuon of all scores
 pdf('drugResponseDistribution.pdf')
 
-for(val in c("FAUC","MAXR","LAC50")){
+for(val in c("TAUC","MAXR","LAC50")){
   
   aucMat<-getValueForAllCells(val)
   hist(aucMat,main=paste('Distribution of',val,'across cells'),xlab=val)
@@ -38,7 +38,7 @@ dev.off()
 
 #now figure out how they compare
 maxrMat<-getValueForAllCells("MAXR")
-aucMat<-getValueForAllCells("FAUC")
+aucMat<-getValueForAllCells("TAUC")
 lac50Mat<-getValueForAllCells("LAC50")
 
 zscore<-function(x){
@@ -71,7 +71,7 @@ png('correlationOfScores.png')
 print(p)
 dev.off()
 
-for(val in c("ZSCORE","FAUC","MAXR","LAC50")){
+for(val in c("ZSCORE","TAUC","MAXR","LAC50")){
   if(val=='ZSCORE'){
     aucMat<-zscoreMat
   }else{
