@@ -8,8 +8,20 @@ for(combo in c('6x6','10x10')){
     lms<-doLinearModel(res,paste(combo,'CTG',val,'Values',sep=''))
   }
 }
+combo='6x6'
+files<-getFileForCombo(combo,'CTG')
+row.targs<-unique(unlist(lapply(files,function(x) return(x$RowTarget))))
+col.targs<-unique(unlist(lapply(files,function(x) return(x$ColTarget))))
+write.table(data.frame(Row=row.targs,Col=col.targs),file='NCATS_targets_6x6.tsv',sep='\t',row.names=F,col.names=T)
 
-scripturl=''
+combo='10x10'
+files<-getFileForCombo(combo,'CTG')
+row.targs<-unique(unlist(lapply(files,function(x) return(x$RowTarget))))
+col.targs<-unique(unlist(lapply(files,function(x) return(x$ColTarget))))
+write.table(data.frame(Row=row.targs,Col=col.targs),file='NCATS_targets_10x10.tsv',sep='\t',row.names=F,col.names=T)
+
+
+scripturl='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-05-09/testComboScreens.R'
 combo.screen.sid='syn6042830'
 fileparent=screendirs[['6x6']]  
 cells=synapseQuery(paste("select name,id from entity where parentId=='",fileparent,"'",sep=''))
@@ -40,10 +52,14 @@ tens<-allfiles[grep('10x10',allfiles)]
 ten.list=c()
 
 for(f in sixes){
-  synStore(File(f,parentId=combo.screen.sid),used=list(six.list),executed=list(list(url=scripturl)))
+  synStore(File(f,parentId=combo.screen.sid),used=six.files,executed=list(list(url=scripturl)))
 }
 
 
 for(f in tens){
-  synStore(File(f,parentId=combo.screen.sid),used=list(ten.list),executed=list(list(url=scripturl)))
+  synStore(File(f,parentId=combo.screen.sid),used=ten.files,executed=list(list(url=scripturl)))
 }
+
+##lastly get 6x6 and 10x10 drug combos
+
+
