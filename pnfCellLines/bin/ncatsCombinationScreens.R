@@ -8,6 +8,7 @@ library(synapseClient)
 library(data.table)
 library(pheatmap)
 synapseLogin()
+library(ggplot2)
 require(reshape2)
 screendirs=list(`10x10`='syn5611797',`6x6`='syn5611796')
 
