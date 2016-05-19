@@ -21,6 +21,19 @@ col.targs<-unique(unlist(lapply(files,function(x) return(x$ColTarget))))
 write.table(data.frame(Row=row.targs,Col=col.targs),file='NCATS_targets_10x10.tsv',sep='\t',row.names=F,col.names=T)
 
 
+combo='6x6'
+files<-getFileForCombo(combo,'CTG')
+row.targs<-unique(unlist(lapply(files,function(x) return(x$RowName))))
+col.targs<-unique(unlist(lapply(files,function(x) return(x$ColName))))
+write.table(data.frame(Row=row.targs,Col=col.targs),file='NCATS_drugs_6x6.tsv',sep='\t',row.names=F,col.names=T)
+
+combo='10x10'
+files<-getFileForCombo(combo,'CTG')
+row.targs<-unique(unlist(lapply(files,function(x) return(x$RowName))))
+col.targs<-unique(unlist(lapply(files,function(x) return(x$ColName))))
+write.table(data.frame(Row=row.targs,Col=col.targs),file='NCATS_drugs_10x10.tsv',sep='\t',row.names=F,col.names=T)
+
+
 scripturl='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/analysis/2016-05-09/testComboScreens.R'
 combo.screen.sid='syn6042830'
 fileparent=screendirs[['6x6']]  
