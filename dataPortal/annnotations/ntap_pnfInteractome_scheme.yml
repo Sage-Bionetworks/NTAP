@@ -1,0 +1,151 @@
+projectInfo:
+    synId: syn4939890  ##pnf interactome
+    annotations:
+        fundingAgency: NTAP
+        consortium:
+        study: Cell Culture
+        isCellLine: True
+        nf2Genotype: +/+
+        assayType: rnaArray
+        dataType: geneExpression
+        species: mouse
+        tissueType: Not Applicable
+    patternToMatch:
+      'csv':
+        fileFormat: csv
+      'chp':
+        fileFormat: chp
+      'CEL':
+        fileFormat: cel
+      'xlsx':
+        fileFormat: excel
+
+entityId1:
+  - syn5911662
+  annotations:
+
+  patternToMatch:
+    'Schwann':
+      cellType: schwann cells
+      organ: nerve
+    'macrophage':
+      cellType: macrophage
+      organ: nerve
+    'Control':
+      cellType: control
+      organ: Not Applicable
+    '1_28':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell WT Sample 1 Batch 1
+    '2__193':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell WT Sample 2 Batch 2
+    '3__196':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell WT Sample 3 Batch 2
+    '4__28':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage WT Sample 4 Batch 1
+    '5__193':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage WT Sample 5 Batch 2
+    '6__196':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage WT Sample 6 Batch 3
+    '16__Batch_Control':
+      nf1Genotype: +/+
+      diagnosis: Control
+      tumorType: None
+      sampleId: Universal Control Batch 1
+    'Batch_Control_2':
+      nf1Genotype: +/+
+      diagnosis: Control
+      tumorType: None
+      sampleId: Universal Control Batch 2
+    '10__207':
+      nf1Genotype: -/-
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell NF1 Sample 10 Batch 1
+    '8__48':
+      nf1Genotype: -/-
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell NF1 Sample 8 Batch 2
+    '9__203':
+      nf1Genotype: -/-
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell NF1 Sample 9 Batch 2
+    '4486_Schwann':
+      nf1Genotype: -/-
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell NF1 Sample 4486 Batch 2
+    '4486_Macrophage':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 4486 Batch 2
+    '4492_Schwann':
+      nf1Genotype: -/-
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Schwann Cell NF1 Sample 4492 Batch 2
+    '4481_Schwann':
+      nf1Genotype: -/-
+      diagnosis: Neurofibromatosis 1
+      tumorType:
+      sampleId: Schwann Cell NF1 Sample 4481 Batch 2
+    '11__48':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 11 Batch 1
+    '12__85':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 12 Batch 1
+    '13__89':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 13 Batch 1
+    '14__203':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 14 Batch 1
+    '15__207':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 15 Batch 1
+    '4441_Mac':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 4441 Batch 2
+    '4448_Mac':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 4448 Batch 2
+    '4481_Mac':
+      nf1Genotype: +/+
+      diagnosis: Neurofibromatosis 1
+      tumorType: Plexiform Neurofibroma
+      sampleId: Macrophage NF1 Sample 4481 Batch 2

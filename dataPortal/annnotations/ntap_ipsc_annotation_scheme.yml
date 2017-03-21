@@ -1,0 +1,94 @@
+projectInfo:
+    synId: syn6098030  ##ipsc data
+    annotations:
+        fundingAgency: NTAP
+        consortium: Not Applicable
+        study: Cell Culture
+        isCellLine: True
+        nf2Genotype: +/+
+        nf1Genotype: -/-
+        assay: snpArray
+        dataType: genomicVariants
+        dataSubtype: raw
+        tissue: Not Applicable
+        organ: Not Applicable
+        cellType: induced pluripotent stem cells
+        tumorType: Plexiform Neurofibroma
+        species: Human
+        diagnosis: Neurofibromatosis 1
+        fileFormat: txt
+    patternToMatch:
+      'PNF1B':
+        sampleIdentifier: PNF1B
+        patientIdentifier: PNF1
+        sex: female
+      'PNF1D':
+        sampleIdentifier: PNF1D
+        patientIdentifier: PNF1
+        sex: female
+      'PNF2A':
+        sampleIdentifier: PNF2A
+        patientIdentifier: PNF1
+        sex: female
+      'PNF2B':
+        sampleIdentifier: PNF2B
+        patientIdentifier: PNF1
+        sex: female
+      'PNF3Y':
+        sampleIdentifier: PNF3Y
+        patientIdentifier: PNF3
+        sex: female
+      'PNF3AC':
+        sampleIdentifier: PNF3AC
+        patientIdentifier: PNF3
+        sex: female
+      'PNF3AF':
+        sampleIdentifier: PNF3AF
+        patientIdentifier: PNF3
+        sex: female
+      'PNF4A':
+        sampleIdentifier: PNF4A
+        patientIdentifier: PNF4
+        sex: female
+      'PNF4C':
+        sampleIdentifier: PNF4C
+        patientIdentifier: PNF4
+        sex: female
+      'PNF4D':
+        sampleIdentifier: PNF4D
+        patientIdentifier: PNF4
+        sex: female
+      'PNF5A':
+        sampleIdentifier: PNF5A
+        patientIdentifier: PNF5
+        sex: male
+      'PNF5B':
+        sampleIdentifier: PNF5B
+        patientIdentifier: PNF5
+        sex: male
+      'PNF6B':
+        sampleIdentifier: PNF6B
+        patientIdentifier: PNF6
+        sex: female
+      'PNF6C1':
+        sampleIdentifier: PNF6C1
+        patientIdentifier: PNF6
+        sex: female
+      'PNF6F2':
+        sampleIdentifier: PNF6F2
+        patientIdentifier: PNF6
+        sex: female
+      'PNF7B':
+        sampleIdentifier: PNF7B
+        patientIdentifier: PNF7
+        sex: female
+      'PNF7C':
+        sampleIdentifier: PNF7C
+        patientIdentifier: PNF7
+        sex: female
+      'PNF8.1':
+        sampleIdentifier: PNF8.1
+        patientIdentifier: PNF8
+        sex: female
+
+##now have to annotate the ES ones

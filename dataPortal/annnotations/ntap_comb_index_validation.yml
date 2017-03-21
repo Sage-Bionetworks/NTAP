@@ -1,0 +1,10 @@
+projectInfo:
+    synId: syn4939876  ##combination screen validation
+    annotations:
+        fundingAgency: NTAP
+        consortium:
+        study: Cell Culture
+        isCellLine: True
+        nf2Genotype: +/+
+
+##Murine escs, mtts

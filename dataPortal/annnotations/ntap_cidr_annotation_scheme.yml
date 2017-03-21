@@ -1,0 +1,508 @@
+##This is an example of an annotation scheme applied to a specific project
+##Designed to be applied to the minified annotations as well as extra files
+## Edited by Xindi Guo 10/04/2016
+
+#Step 1: specify project information, including project Synapse ID and any project-wide annotations
+projectInfo:
+    synId: syn4939874  ##CIDR
+    annotations:
+        fundingAgency: NTAP
+        consortium: Not Applicable
+        study: Cell Culture
+        isCellLine: True
+        cellType: cultured cell
+        nf2Genotype: +/+
+
+#Step 2a: can specify annotations by synapse ID
+entityId1:
+    synId:
+        - syn5550341 ## cell line authentication data
+    annotations:
+        assay: genotyping
+        dataType: report
+        dataSubtype: processed
+        species: Human
+        fileFormat: pdf
+    patternToMatch:
+        'W12.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W13.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W14.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (single clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W15.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (mixed clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W16.pdf':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: ipn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        'W17.pdf':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        'W1.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF05.5
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W2.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W3.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W4.pdf':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: pn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        'W5.pdf':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        'W6.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W7.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier:	ipNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W8.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (single clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W9.pdf':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier:	ipNF05.5 (mixed clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        'W10.pdf':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: ipn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        'W11.pdf':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+
+
+
+
+##Add all analysis subsets of exome seq data in another file
+entityId2:
+    synId:
+        - syn5562003 #rna seq data
+    annotations:
+        assay: rnaSeq
+        dataType: geneExpression
+        species: Human
+    patternToMatch:
+      'tsv':
+        fileFormat: csv
+      'h5':
+        fileFormat: h5
+      'C8581ANXX_6':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        disease: Neurofibromatosis 1
+        sampleIdentifier: ipNF95.6
+        tissue: nerve tissue
+        nf1Genotype: -/-
+        dataSubtype: processed
+      'C8581ANXX_7':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        disease: Neurofibromatosis 1
+        sampleIdentifier: ipNF95.11bC
+        tissue: nerve tissue
+        nf1Genotype: -/-
+        dataSubtype: processed
+      'C8581ANXX_8':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        disease: Neurofibromatosis 1
+        sampleIdentifier: ipNF05.5 (single clone)
+        tissue: nerve tissue
+        nf1Genotype: -/-
+        dataSubtype: processed
+      'C856CANXX_1':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        disease: Neurofibromatosis 1
+        sampleIdentifier: ipNF05.5 (mixed clone)
+        tissue: nerve tissue
+        nf1Genotype: -/-
+        dataSubtype: processed
+      'C856CANXX_2':
+        organ: nerves
+        tumorType: None
+        disease: Control
+        sampleIdentifier: ipn02.3
+        dataSubtype: processed
+        tissue: nerve tissue
+        nf1Genotype: +/+
+      'C856CANXX_3':
+        organ: nerves
+        tumorType: None
+        disease: Neurofibromatosis 1
+        dataSubtype: processed
+        sampleIdentifier: ipnNF95.11c
+        tissue: nerve tissue
+        nf1Genotype: +/-
+      'C8581ANXX_1':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        dataSubtype: processed
+        disease: Neurofibromatosis 1
+        sampleIdentifier: pNF05.5
+        tissue: nerve tissue
+        nf1Genotype: -/-
+      'C8581ANXX_2':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        disease: Neurofibromatosis 1
+        sampleIdentifier: pNF95.11bC
+        dataSubtype: processed
+        tissue: nerve tissue
+        nf1Genotype: -/-
+      'C8581ANXX_3':
+        organ: nerves
+        tumorType: Neurofibroma, Plexiform
+        dataSubtype: processed
+        disease: Neurofibromatosis 1
+        sampleIdentifier: pNF95.6
+        tissue: nerve tissue
+        nf1Genotype: -/-
+      'C8581ANXX_4':
+        organ: nerves
+        tumorType: None
+        dataSubtype: processed
+        disease: Control
+        sampleIdentifier: pn02.3
+        tissue: nerve tissue
+        nf1Genotype: +/+
+      'C8581ANXX_5':
+        organ: nerves
+        tumorType: None
+        dataSubtype: processed
+        disease: Neurofibromatosis 1
+        sampleIdentifier: pnNF95.11c
+        tissue: nerve tissue
+        nf1Genotype: +/-
+
+##NOW add in the gene matrix files
+entityId3:
+   synId:
+    - syn5580378
+    - syn5580347
+    - syn7124098
+    annotations:
+      dataSubtype: dataMatrix
+      dataType: geneExpression
+      assay: rnaSeq
+
+entityId4:
+  synId:
+    - syn7139168
+  annotations:
+    dataSubtype: metadata
+    dataType: geneExpression
+    assay: rnaSeq
+
+entityId5:
+   synId:
+    - syn5580378
+    - syn5580347
+    - syn7124098
+    - syn7139168
+    - syn5562006
+    - syn7139168
+    annotations1: #this is a new idea - each individual set of unique identifiers
+       organ: nerves
+       tumorType: Neurofibroma, Plexiform
+       disease: Neurofibromatosis 1
+       sampleIdentifier: ipNF95.6
+       tissue: nerve tissue
+       nf1Genotype: -/-
+    annotations2:
+       organ: nerves
+       tumorType: Neurofibroma, Plexiform
+       disease: Neurofibromatosis 1
+       sampleIdentifier: ipNF95.11bC
+       tissue: nerve tissue
+       nf1Genotype: -/-
+    annotations3:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: ipNF05.5 (single clone)
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations4:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: ipNF05.5 (mixed clone)
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations5:
+      organ: nerves
+      tumorType: None
+      disease: Control
+      sampleIdentifier: ipn02.3
+      tissue: nerve tissue
+      nf1Genotype: +/+
+    annotations6:
+      organ: nerves
+      tumorType: None
+      disease: Neurofibromatosis 1
+      sampleIdentifier: ipnNF95.11c
+      tissue: nerve tissue
+      nf1Genotype: +/-
+    annotations7:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pNF05.5
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations8:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pNF95.11bC
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations9:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pNF95.6
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations10:
+      organ: nerves
+      tumorType: None
+      disease: Control
+      sampleIdentifier: pn02.3
+      tissue: nerve tissue
+      nf1Genotype: +/+
+    annotations11:
+      organ: nerves
+      tumorType: None
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pnNF95.11c
+      tissue: nerve tissue
+      nf1Genotype: +/-
+
+
+##add in files underneath
+
+entityId6:
+    synId:
+         - syn4988794 #snp array data
+    annotations:
+        assay: snpArray
+        dataType: report
+        dataSubtype: processed
+        species: Human
+        fileFormat: csv
+    patternToMatch:
+        'Anno':
+          organ: Not Applicable
+          tumorType: Not Applicable
+          disease: Not Applicable
+          sampleIdentifier: Not Applicable
+          tissue: Not Applicable
+          nf1Genotype: Not Applicable
+        '-W12_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W13_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W14_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (single clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W15_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (mixed clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W16_':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: ipn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        '-W17_':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '-W1_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF05.5
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W2_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W3_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W4_':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: pn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        '-W5_':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '-W6_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W7_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier:	ipNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W8_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (single clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W9_':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier:	ipNF05.5 (mixed clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '-W10_':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: ipn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        '-W11_':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '-CIDR_':
+          organ: blood
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: whole blood
+          tissue: Not Applicable
+          nf1Genotype: +/+
+
+entityId7:
+  synId:
+    -syn5562006
+  annotations:
+    dataSubtype: metadata

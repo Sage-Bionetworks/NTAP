@@ -1,0 +1,430 @@
+##do i need the project id? or can i just annotate entities?
+#Step 1: specify project information, including project Synapse ID and any project-wide annotations
+projectInfo:
+    synId: syn4939874  ##CIDR
+
+entityId1: ##search entire directory for pattern matching based on sample ids. if we do this once we can do functional annotation below
+    synId:
+      - syn6086886 ## exome seq data -
+      - syn6086903
+      - syn6092284
+    annotations:
+        assay: exomeSeq
+        dataType: genomicVariants
+        species: Human
+        consortium: Not Applicable
+        cellType: cultured cell
+        dataSubtype: processed
+    patternToMatch: ##this goes for every file below
+        'vcf':
+          fileFormat: vcf
+        'NA12891-0175549876':
+          organ: blood
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: whole blood
+          tissue: Not Applicable
+          nf1Genotype: +/+
+        '69244-0209702964':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69245-0209702952':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69246-0209702953':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (single clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69247-0209702954':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (mixed clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69248-0209702955':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: ipn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+          cellType:
+        '69249-0209702956':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '69239-0209702975':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF05.5
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '69240-0209702974':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '69241-0209702973':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '69242-0209702972':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: pn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        '69243-0209702971':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '.csv':
+          fileFormat: csv
+          dataSubtype: processed
+        '.doc':
+          fileFormat: doc
+          dataSubtype: metadata
+        '.docx':
+          fileFormat: doc
+          dataSubtype: metadata
+        '.bam':
+          fileFormat: bam
+          dataSubtype: raw
+        '.idx':
+          fileFormat: idx
+          dataSubtype: processed
+        '.xlsx':
+          fileFormat: excel
+          dataSubtype: metadata
+        'txt':
+          fileFormat: txt
+          dataSubtype: processed
+        '.sh':
+          fileFormat: script
+          dataSubtype: processed
+        '.bed':
+          fileFormat: bed
+          dataSubtype: raw
+        '.bai':
+          fileFormat: bai
+          dataSubtype: processed
+        '.tbi':
+          fileFormat: tbi
+          dataSubtype: processed
+        '.vcf.gz':
+          fileFormat: bgzip ##is this a thing?
+          dataSubtype: processed
+        '.maf.gz':
+          fileFormat: maf ##is this a thing?
+          dataSubtype: processed
+
+entityId2: ##this will annotate everything that is metadata or scripts
+  synId:
+    - syn6086901
+    - syn6086896
+    - syn6086900
+    - syn6094772
+    - syn6086888
+  annotations:
+    dataType: report
+    dataSubType: processed
+    organ: Not Applicable
+    tumorType: Not Applicable
+    disease: Not Applicable
+    sampleIdentifier: Not Applicable
+    tissue: Not Applicable
+    nf1Genotype: Not Applicable
+
+entityId4: #plink files
+    synId:
+      - syn6094780
+    fileFormat: plink
+    dataSubtype: processed
+
+entityId5: #vcf files comprise all samples and bed files as well.
+   synId:
+     - syn6091968
+     - syn6092274
+     - syn6674843
+     - syn6674733
+     - syn6086889
+     - syn6092284
+    annotations:
+        assay: exomeSeq
+        dataType: genomicVariants
+        species: Human
+        consortium: Not Applicable
+        cellType: cultured cell
+        dataSubtype: processed
+    patternToMatch: ##this goes for every file below
+        'vcf':
+          fileFormat: vcf
+        'NA12891-0175549876':
+          organ: blood
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: whole blood
+          tissue: Not Applicable
+          nf1Genotype: +/+
+        '69244-0209702964':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69245-0209702952':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69246-0209702953':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (single clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69247-0209702954':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipNF05.5 (mixed clone)
+          tissue: nerve tissue
+          nf1Genotype: -/-
+          cellType: tumor
+        '69248-0209702955':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: ipn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+          cellType:
+        '69249-0209702956':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: ipnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '69239-0209702975':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF05.5
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '69240-0209702974':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.11bC
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '69241-0209702973':
+          organ: nerves
+          tumorType: Neurofibroma, Plexiform
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pNF95.6
+          tissue: nerve tissue
+          nf1Genotype: -/-
+        '69242-0209702972':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Control
+          sampleIdentifier: pn02.3
+          tissue: nerve tissue
+          nf1Genotype: +/+
+        '69243-0209702971':
+          organ: nerves
+          tumorType: Not Applicable
+          disease: Neurofibromatosis 1
+          sampleIdentifier: pnNF95.11c
+          tissue: nerve tissue
+          nf1Genotype: +/-
+        '.csv':
+          fileFormat: csv
+          dataSubtype: processed
+        '.doc':
+          fileFormat: doc
+          dataSubtype: metadata
+        '.docx':
+          fileFormat: doc
+          dataSubtype: metadata
+        '.bam':
+          fileFormat: bam
+          dataSubtype: raw
+        '.idx':
+          fileFormat: idx
+          dataSubtype: processed
+        '.xlsx':
+          fileFormat: excel
+          dataSubtype: metadata
+        'txt':
+          fileFormat: txt
+          dataSubtype: processed
+        '.sh':
+          fileFormat: script
+          dataSubtype: processed
+        '.bed':
+          fileFormat: bed
+          dataSubtype: raw
+        '.bai':
+          fileFormat: bai
+          dataSubtype: processed
+        '.tbi':
+          fileFormat: tbi
+          dataSubtype: processed
+        '.vcf.gz':
+          fileFormat: bgzip ##is this a thing?
+          dataSubtype: processed
+        '.vcf':
+          fileFormat: vcf ##is this a thing?
+          dataSubtype: processed
+          '.maf.gz':
+          fileFormat: maf ##is this a thing?
+          dataSubtype: processed
+
+entityId2: ##this will annotate everything that is metadata or scripts
+  synId:
+    - syn6086901
+    - syn6086896
+    - syn6086900
+    - syn6094772
+    - syn6086888
+  annotations:
+    dataType: report
+    dataSubType: processed
+    organ: Not Applicable
+    tumorType: Not Applicable
+    disease: Not Applicable
+    sampleIdentifier: Not Applicable
+    tissue: Not Applicable
+    nf1Genotype: Not Applicable
+
+entityId4: #plink files
+    synId:
+      - syn6094780
+    fileFormat: plink
+    dataSubtype: processed
+
+entityId5: #vcf files comprise all samples and bed files as well.
+   synId:
+     - syn6091968
+     - syn6092274
+     - syn6674843
+     - syn6674733
+     - syn6086889
+     - syn6092425
+   annotations1: #this is a new idea - each individual set of unique identifiers
+       organ: nerves
+       tumorType: Neurofibroma, Plexiform
+       disease: Neurofibromatosis 1
+       sampleIdentifier: ipNF95.6
+       tissue: nerve tissue
+       nf1Genotype: -/-
+  annotations2:
+       organ: nerves
+       tumorType: Neurofibroma, Plexiform
+       disease: Neurofibromatosis 1
+       sampleIdentifier: ipNF95.11bC
+       tissue: nerve tissue
+       nf1Genotype: -/-
+  annotations3:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: ipNF05.5 (single clone)
+      tissue: nerve tissue
+      nf1Genotype: -/-
+  annotations4:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: ipNF05.5 (mixed clone)
+      tissue: nerve tissue
+      nf1Genotype: -/-
+  annotations5:
+      organ: nerves
+      tumorType: None
+      disease: Control
+      sampleIdentifier: ipn02.3
+      tissue: nerve tissue
+      nf1Genotype: +/+
+    annotations6:
+      organ: nerves
+      tumorType: None
+      disease: Neurofibromatosis 1
+      sampleIdentifier: ipnNF95.11c
+      tissue: nerve tissue
+      nf1Genotype: +/-
+    annotations7:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pNF05.5
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations8:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pNF95.11bC
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations9:
+      organ: nerves
+      tumorType: Neurofibroma, Plexiform
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pNF95.6
+      tissue: nerve tissue
+      nf1Genotype: -/-
+    annotations10:
+      organ: nerves
+      tumorType: None
+      disease: Control
+      sampleIdentifier: pn02.3
+      tissue: nerve tissue
+      nf1Genotype: +/+
+    annotations11:
+      organ: nerves
+      tumorType: None
+      disease: Neurofibromatosis 1
+      sampleIdentifier: pnNF95.11c
+      tissue: nerve tissue
+      nf1Genotype: +/-
