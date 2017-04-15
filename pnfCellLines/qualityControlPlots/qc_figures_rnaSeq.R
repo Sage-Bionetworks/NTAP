@@ -6,6 +6,8 @@ library(dplyr)
 library(synapseClient)
 source("../dataAccess/RNASeqData.R")
 
+synapseLogin()
+
 outputPCA <- function(mat,annotes,fileName){
   pca_res <- prcomp(t(mat), center=F, scale=F)
   df <- data.frame(pca_res$x[,c(1:5)])
@@ -14,10 +16,10 @@ outputPCA <- function(mat,annotes,fileName){
   
   df<- merge(df,annotes,by.x="row.names",by.y="synapseId")
   
-  p1 <- ggplot(data=df, aes(x=PC1,y=PC2,color=sampleName)) + geom_point() + theme_bw(base_size = 14)
+  p1 <- ggplot(data=df, aes(x=PC1,y=PC2,color=sampleName)) + geom_point(aes(shape = genotype),size=4) + theme_bw(base_size = 14)
   p1 <- p1 + xlab(paste0("PC1",' - (', round(percent_variation[1],2), '%)' ))  + ylab(paste0("PC2",' - ( ', round(percent_variation[2],2), '%)' ))
   
-  p2 <- ggplot(data=df, aes(x=PC2,y=PC3,color=sampleName)) + geom_point() + theme_bw(base_size = 14)
+  p2 <- ggplot(data=df, aes(x=PC2,y=PC3,color=sampleName)) + geom_point(aes(shape = genotype),size=4) + theme_bw(base_size = 14)
   p2 <- p2 + xlab(paste0("PC2",' - (', round(percent_variation[2],2), '%)' ))  + ylab(paste0("PC3",' - ( ', round(percent_variation[3],2), '%)' ))
   
   pdf(fileName)
