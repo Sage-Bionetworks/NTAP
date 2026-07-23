@@ -1,104 +1,104 @@
-###
-###
-##
-## RNASeqData.R
-## Basic set of library functions designed to collect and manage RNA-Seq data for NTAP PNF cell lines
-##
-###
-
-rna.dir<-'syn5562003'
-grch38.dir<-'syn5579783'
-gencode.dir='syn5579785'
+# -----------------------------------------------------------------------------------
+# Set of library functions designed to collect and manage RNA-Seq data for NTAP PNF cell lines
+# -----------------------------------------------------------------------------------
 require(synapseClient)
 require(data.table)
+
 synapseLogin()
 
-samp.mappings<-synTableQuery('SELECT "Sample Name","RNA-Seq Data","RNA-Seq Data (Gencode)", "Sample Genotype" FROM syn5014742')@values
+# ------------------------------------------------------------------------------------
+rna.dir <- 'syn5562003'
+grch38.dir <- 'syn5579783'
+gencode.dir <- 'syn5579785' 
 
+samp.mappings <- synTableQuery('SELECT "Sample Name","RNA-Seq Data","RNA-Seq Data (Gencode)", "Sample Genotype" FROM syn5014742')@values
+# ------------------------------------------------------------------------------------
 
-rnaKallistoFiles<-function(){
-  rfiles<-synapseQuery(paste('select * from entity where parentId=="',grch38.dir,'"',sep=''))
-  rfiles<-rfiles[which(!is.na(rfiles$entity.sampleName)),]
-  all.files<-lapply(rfiles$entity.id,function(x)
+rnaKallistoFiles <- function(){
+  rfiles <- synapseQuery(paste('select * from entity where parentId=="', grch38.dir, '"', sep = ''))
+  rfiles[is.na(rfiles)] <- ''
+  rfiles <- rfiles[which(!is.na(rfiles$entity.specimenID) & rfiles$entity.isMultiSpecimen != 'True'),]
+  all.files <- lapply(rfiles$entity.id,function(x)
     as.data.frame(fread(synGet(x)@filePath))
   )
-  names(all.files)<-rfiles$entity.id
+  names(all.files) <- rfiles$entity.id
   return(all.files)
 }
 
-rnaGencodeKallistoFiles<-function(){
-  rfiles<-synapseQuery(paste('select * from entity where parentId=="',gencode.dir,'"',sep=''))
-  rfiles<-rfiles[which(!is.na(rfiles$entity.sampleName)),]
-  all.files<-lapply(rfiles$entity.id,function(x)
+rnaGencodeKallistoFiles <- function(){
+  rfiles <- synapseQuery(paste('select * from entity where parentId=="', gencode.dir ,'"', sep = ''))
+  rfiles[is.na(rfiles)] <- ''
+  rfiles <- rfiles[which(!is.na(rfiles$entity.specimenID & rfiles$entity.isMultiSpecimen != 'True')), ]
+  all.files <- lapply(rfiles$entity.id,function(x)
     as.data.frame(fread(synGet(x)@filePath))
   )
-  names(all.files)<-rfiles$entity.id
+  names(all.files) <- rfiles$entity.id
   return(all.files)
 }
 
-rnaAnnotations<-function(gencode=TRUE){
-  if(gencode)
-    dirname=gencode.dir
+rnaAnnotations <- function(gencode=TRUE){
+  if (gencode)
+    dirname <- gencode.dir
   else
-    dirname=grch38.dir
-  rfiles<-synapseQuery(paste('select id,sampleName from entity where parentId=="',dirname,'"',sep=''))
-  rfiles<-rfiles[which(!is.na(rfiles$entity.sampleName)),]
-  samps<-rfiles$entity.sampleName
-  names(samps)<-rfiles$entity.id
+    dirname <- grch38.dir
+  rfiles <- synapseQuery(paste('select id,sampleName from entity where parentId=="', dirname,'"',sep = ''))
+  rfiles <- rfiles[which(!is.na(rfiles$entity.specimenID)), ]
+  samps <- rfiles$entity.specimenID
+  names(samps) <- rfiles$entity.id
   return(samps)
 }
 
 
-rnaKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm',useCellNames=FALSE,byGene=FALSE){
+rnaKallistoMatrix <- function(buildFromFiles=FALSE, metric='tpm', useCellNames=FALSE, byGene=FALSE){
   ##metric is either 'tpm' or 'est_counts'
-  if(!metric%in%c('tpm','est_counts')){
+  if (!metric %in% c('tpm','est_counts')) {
     print(paste(metric,'is not a valid kallisto output'))
     return(NULL)
   }
-  if(buildFromFiles){
-        allfiles<-rnaKallistoFiles()
-        all.quants=sapply(allfiles,function(x){
-          quants<-x[,metric]
-          names(quants)=apply(x[,1:2],1,paste,collapse='.')
+  if (buildFromFiles) {
+        allfiles <- rnaKallistoFiles()
+        all.quants <- sapply(allfiles,function(x){
+          quants <- x[,metric]
+          names(quants) <- apply(x[,1:2], 1, paste, collapse = '.')
           return(quants)
         })
-        fname=paste('kallistoDerived',metric,'RNASeq_values.tsv',sep='')
-        write.table(all.quants,file=fname,sep='\t')
-        sf=File(fname,parentId=grch38.dir)
-        synStore(sf,used='https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/RNASeqData.R')
-        tab=all.quants
+        fname <- paste('kallistoDerived',metric,'RNASeq_values.tsv', sep = '')
+        write.table(all.quants, file = fname, sep = '\t')
+        sf <- File(fname,parentId = grch38.dir)
+        synStore(sf, used = 'https://raw.githubusercontent.com/Sage-Bionetworks/NTAP/master/pnfCellLines/bin/RNASeqData.R')
+        tab <- all.quants
 
     }else{
-      if(metric=='est_counts')
-        tab=read.table(synGet('syn5562376')@filePath)
-      else if(metric=='tpm')
-        tab=read.table(synGet('syn5562378')@filePath)
+      if (metric == 'est_counts')
+        tab <- read.table(synGet('syn5562376')@filePath)
+      else if (metric == 'tpm')
+        tab <- read.table(synGet('syn5562378')@filePath)
 
     }
-  if(useCellNames){
-    annotes=synTableQuery('SELECT "Sample Name","RNA-Seq Data" FROM syn5014742 where "RNA-Seq Data" is not null')
-  colnames(tab)<-annotes$`Sample Name`[match(colnames(tab),annotes$`RNA-Seq Data`)]
+  if (useCellNames) {
+    annotes <- synTableQuery('SELECT "Sample Name","RNA-Seq Data" FROM syn5014742 where "RNA-Seq Data" is not null')
+  colnames(tab) <- annotes$`Sample Name`[match(colnames(tab),annotes$`RNA-Seq Data`)]
 
  }
-  if(byGene){
-      if(metric=='est_counts')
+  if (byGene) {
+      if (metric == 'est_counts')
           print("Estimated counts should not be collapsed by gene, please use 'tpm' as metric")
       else{
-          all.genes=sapply(rownames(tab),function(x) unlist(strsplit(x,split='.',fixed=T))[1])
-          tab=sapply(unique(all.genes),function(x) colSums(tab[which(all.genes==x),]))
+          all.genes <- sapply(rownames(tab),function(x) unlist(strsplit(x,split='.',fixed=T))[1])
+          tab <- sapply(unique(all.genes),function(x) colSums(tab[which(all.genes == x), ]))
       }
   }
 
   return(tab)
 }
 
-rnaGencodeKallistoMatrix<-function(buildFromFiles=FALSE,metric='tpm',useCellNames=FALSE,byGene=FALSE){
+rnaGencodeKallistoMatrix <- function(buildFromFiles=FALSE,metric='tpm',useCellNames=FALSE,byGene=FALSE){
   ##metric is either 'tpm' or 'est_counts'
-  if(!metric%in%c('tpm','est_counts')){
+  if (!metric%in%c('tpm','est_counts')) {
     print(paste(metric,'is not a valid kallisto output'))
     return(NULL)
   }
-  if(buildFromFiles){
+  if (buildFromFiles) {
         allfiles<-rnaGencodeKallistoFiles()
         all.quants=sapply(allfiles,function(x){
           quants<-x[,metric]
